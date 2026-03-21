@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,8 +6,10 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional
 import uuid
+import random
+import string
 from datetime import datetime, timezone
 
 
@@ -26,9 +28,18 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 
+def generate_share_code():
+    """Generate a short, readable share code like OSTRA-A7K2"""
+    chars = string.ascii_uppercase + string.digits
+    # Remove confusing characters
+    chars = chars.replace('O', '').replace('0', '').replace('I', '').replace('1', '').replace('L', '')
+    code = ''.join(random.choices(chars, k=4))
+    return f"OSTRA-{code}"
+
+
 # Define Models
 class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
+    model_config = ConfigDict(extra="ignore")
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     client_name: str
@@ -36,6 +47,35 @@ class StatusCheck(BaseModel):
 
 class StatusCheckCreate(BaseModel):
     client_name: str
+
+
+# Squad Models
+class PlayerPosition(BaseModel):
+    player: dict
+    x: float
+    y: float
+
+class MatchInfo(BaseModel):
+    opponent: Optional[str] = ""
+    date: Optional[str] = ""
+    time: Optional[str] = ""
+    location: Optional[str] = ""
+
+class SharedSquad(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    code: str
+    name: str
+    playersOnPitch: List[dict] = []
+    playersOnSubs: List[dict] = []
+    matchInfo: Optional[dict] = None
+    createdAt: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class ShareSquadRequest(BaseModel):
+    name: str
+    playersOnPitch: List[dict] = []
+    playersOnSubs: List[dict] = []
+    matchInfo: Optional[dict] = None
 
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
@@ -65,6 +105,51 @@ async def get_status_checks():
             check['timestamp'] = datetime.fromisoformat(check['timestamp'])
     
     return status_checks
+
+
+# Squad sharing endpoints
+@api_router.post("/squads/share")
+async def share_squad(squad: ShareSquadRequest):
+    """Create a shareable code for a squad"""
+    # Generate unique code
+    code = generate_share_code()
+    
+    # Make sure code is unique
+    existing = await db.shared_squads.find_one({"code": code}, {"_id": 0})
+    attempts = 0
+    while existing and attempts < 10:
+        code = generate_share_code()
+        existing = await db.shared_squads.find_one({"code": code}, {"_id": 0})
+        attempts += 1
+    
+    doc = {
+        "code": code,
+        "name": squad.name,
+        "playersOnPitch": squad.playersOnPitch,
+        "playersOnSubs": squad.playersOnSubs,
+        "matchInfo": squad.matchInfo,
+        "createdAt": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.shared_squads.insert_one(doc)
+    
+    return {"code": code, "name": squad.name}
+
+
+@api_router.get("/squads/{code}")
+async def get_squad(code: str):
+    """Get a shared squad by code"""
+    # Normalize code (uppercase, handle with or without prefix)
+    code = code.upper().strip()
+    if not code.startswith("OSTRA-"):
+        code = f"OSTRA-{code}"
+    
+    squad = await db.shared_squads.find_one({"code": code}, {"_id": 0})
+    
+    if not squad:
+        raise HTTPException(status_code=404, detail="Squad not found")
+    
+    return squad
 
 # Include the router in the main app
 app.include_router(api_router)

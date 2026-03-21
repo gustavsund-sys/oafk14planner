@@ -6,7 +6,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './ui/dialog';
-import { FloppyDisk, Folder, Trash, Share, Download } from '@phosphor-icons/react';
+import { FloppyDisk, Folder, Trash, Share, Download, Copy } from '@phosphor-icons/react';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export const SaveLoadDialog = ({ 
   currentSquad, 
@@ -21,31 +23,12 @@ export const SaveLoadDialog = ({
   const [activeTab, setActiveTab] = useState('save');
   const [importCode, setImportCode] = useState('');
   const [shareMessage, setShareMessage] = useState('');
-
-  useEffect(() => {
-    loadSavedSquads();
-    // Check if there's a shared squad in URL
-    checkUrlForSharedSquad();
-  }, []);
+  const [shareCode, setShareCode] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     loadSavedSquads();
   }, [open]);
-
-  const checkUrlForSharedSquad = () => {
-    const params = new URLSearchParams(window.location.search);
-    const sharedData = params.get('squad');
-    if (sharedData) {
-      try {
-        const decoded = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(sharedData)))));
-        onLoadSquad(decoded);
-        // Clear URL
-        window.history.replaceState({}, '', window.location.pathname);
-      } catch (e) {
-        console.error('Failed to load shared squad:', e);
-      }
-    }
-  };
 
   const loadSavedSquads = () => {
     const saved = localStorage.getItem('ostraSquads');
@@ -84,67 +67,56 @@ export const SaveLoadDialog = ({
     setSavedSquads(updated);
   };
 
-  const handleShare = (squad) => {
-    const shareData = {
-      name: squad.name,
-      playersOnPitch: squad.playersOnPitch,
-      playersOnSubs: squad.playersOnSubs,
-      matchInfo: squad.matchInfo
-    };
-    // Use encodeURIComponent for safe URL encoding
-    const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(shareData)))));
-    const shareUrl = `${window.location.origin}${window.location.pathname}?squad=${encoded}`;
-    
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      setShareMessage('Länk kopierad!');
-      setTimeout(() => setShareMessage(''), 2000);
-    }).catch(() => {
-      // Fallback for iOS
-      setImportCode(shareUrl);
-      setActiveTab('import');
-      setShareMessage('Kopiera länken nedan');
+  const handleShare = async (squad) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/squads/share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: squad.name,
+          playersOnPitch: squad.playersOnPitch,
+          playersOnSubs: squad.playersOnSubs,
+          matchInfo: squad.matchInfo
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setShareCode(data.code);
+        navigator.clipboard.writeText(data.code).then(() => {
+          setShareMessage(`Kod kopierad: ${data.code}`);
+        }).catch(() => {
+          setShareMessage(`Dela koden: ${data.code}`);
+        });
+        setTimeout(() => setShareMessage(''), 5000);
+      } else {
+        setShareMessage('Kunde inte dela. Försök igen.');
+        setTimeout(() => setShareMessage(''), 3000);
+      }
+    } catch (e) {
+      console.error('Share error:', e);
+      setShareMessage('Kunde inte dela. Försök igen.');
       setTimeout(() => setShareMessage(''), 3000);
-    });
+    }
+    setIsLoading(false);
   };
 
-  const handleImport = () => {
+  const handleImport = async () => {
     if (!importCode.trim()) return;
     
+    setIsLoading(true);
     try {
-      let data;
-      const code = importCode.trim();
-      
-      // Try to parse as URL first
-      if (code.includes('?squad=') || code.includes('&squad=')) {
-        const urlMatch = code.match(/[?&]squad=([^&\s]+)/);
-        if (urlMatch) {
-          const squadParam = urlMatch[1];
-          // Try different decoding methods
-          try {
-            const decoded = decodeURIComponent(squadParam);
-            data = JSON.parse(decodeURIComponent(escape(atob(decoded))));
-          } catch {
-            try {
-              data = JSON.parse(atob(decodeURIComponent(squadParam)));
-            } catch {
-              data = JSON.parse(atob(squadParam));
-            }
-          }
-        }
-      } else {
-        // Try direct base64
-        try {
-          data = JSON.parse(decodeURIComponent(escape(atob(code))));
-        } catch {
-          try {
-            data = JSON.parse(atob(code));
-          } catch {
-            data = JSON.parse(code);
-          }
-        }
+      // Clean up the code
+      let code = importCode.trim().toUpperCase();
+      if (!code.startsWith('OSTRA-')) {
+        code = `OSTRA-${code}`;
       }
       
-      if (data && (data.playersOnPitch !== undefined || data.name)) {
+      const response = await fetch(`${API_URL}/api/squads/${encodeURIComponent(code)}`);
+      
+      if (response.ok) {
+        const data = await response.json();
         onLoadSquad(data);
         setImportCode('');
         setShareMessage('Squad importerad!');
@@ -153,12 +125,22 @@ export const SaveLoadDialog = ({
           setOpen(false);
         }, 1500);
       } else {
-        throw new Error('Invalid data');
+        setShareMessage('Hittade ingen squad med den koden.');
+        setTimeout(() => setShareMessage(''), 3000);
       }
     } catch (e) {
       console.error('Import error:', e);
-      setShareMessage('Fel: Kunde inte importera. Kontrollera länken.');
+      setShareMessage('Kunde inte importera. Kontrollera koden.');
       setTimeout(() => setShareMessage(''), 3000);
+    }
+    setIsLoading(false);
+  };
+
+  const copyCode = () => {
+    if (shareCode) {
+      navigator.clipboard.writeText(shareCode);
+      setShareMessage('Kod kopierad!');
+      setTimeout(() => setShareMessage(''), 2000);
     }
   };
 
@@ -221,6 +203,21 @@ export const SaveLoadDialog = ({
           </button>
         </div>
 
+        {shareMessage && (
+          <div className={`text-center text-sm py-2 px-3 rounded-lg mb-3 ${
+            shareMessage.includes('Kod') || shareMessage.includes('importerad') || shareMessage.includes('kopierad')
+              ? 'text-green-400 bg-green-500/10' 
+              : 'text-red-400 bg-red-500/10'
+          }`}>
+            {shareMessage}
+            {shareCode && shareMessage.includes('Dela') && (
+              <button onClick={copyCode} className="ml-2 p-1 hover:bg-white/10 rounded">
+                <Copy size={16} />
+              </button>
+            )}
+          </div>
+        )}
+
         {activeTab === 'save' && (
           <div className="space-y-4">
             <div>
@@ -254,11 +251,6 @@ export const SaveLoadDialog = ({
 
         {activeTab === 'load' && (
           <div className="space-y-2 max-h-[300px] overflow-y-auto">
-            {shareMessage && (
-              <div className="text-center text-green-400 text-sm py-2 bg-green-500/10 rounded-lg">
-                {shareMessage}
-              </div>
-            )}
             {savedSquads.length === 0 ? (
               <div className="text-center text-white/40 py-8">
                 Inga sparade squads ännu
@@ -277,7 +269,8 @@ export const SaveLoadDialog = ({
                   </div>
                   <button
                     onClick={() => handleShare(squad)}
-                    className="p-1.5 text-blue-400/70 hover:text-blue-400 hover:bg-blue-500/10 rounded"
+                    disabled={isLoading}
+                    className="p-1.5 text-blue-400/70 hover:text-blue-400 hover:bg-blue-500/10 rounded disabled:opacity-50"
                     title="Dela"
                   >
                     <Share size={18} />
@@ -304,36 +297,30 @@ export const SaveLoadDialog = ({
 
         {activeTab === 'import' && (
           <div className="space-y-4">
-            {shareMessage && (
-              <div className={`text-center text-sm py-2 rounded-lg ${
-                shareMessage.includes('Fel') ? 'text-red-400 bg-red-500/10' : 'text-green-400 bg-green-500/10'
-              }`}>
-                {shareMessage}
-              </div>
-            )}
             <div>
               <label className="text-sm text-white/70 mb-2 block">
-                Klistra in delad länk
+                Ange delningskod
               </label>
-              <textarea
+              <input
+                type="text"
                 value={importCode}
-                onChange={(e) => setImportCode(e.target.value)}
-                placeholder="Klistra in länk från någon som delat en squad..."
-                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-green-500 h-24 resize-none text-sm"
+                onChange={(e) => setImportCode(e.target.value.toUpperCase())}
+                placeholder="T.ex. OSTRA-A7K2"
+                className="w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-green-500 text-center text-lg font-mono tracking-wider"
                 data-testid="import-code-input"
               />
             </div>
             <button
               onClick={handleImport}
-              disabled={!importCode.trim()}
+              disabled={!importCode.trim() || isLoading}
               className="w-full py-2.5 px-4 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               data-testid="import-squad-button"
             >
               <Download size={18} weight="bold" />
-              Importera squad
+              {isLoading ? 'Laddar...' : 'Importera squad'}
             </button>
             <p className="text-xs text-white/40 text-center">
-              Be någon dela sin squad och klistra in länken här
+              Be någon dela sin squad så får du en kort kod
             </p>
           </div>
         )}
