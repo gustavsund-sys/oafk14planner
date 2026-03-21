@@ -129,7 +129,7 @@ function App() {
         {/* Header */}
         <header className="app-header">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Östra Almby FK" className="h-8 w-auto rounded" style={{background: 'white', padding: '2px'}} />
+            <img src="/logo.png" alt="Östra Almby FK" className="h-10 w-auto" />
             <h1 className="font-display text-lg font-bold tracking-tight">
               ÖSTRA SQUAD
             </h1>
