@@ -14,9 +14,18 @@ export const MatchInfoDialog = ({ matchInfo, setMatchInfo }) => {
   const [date, setDate] = useState(matchInfo.date || '');
   const [time, setTime] = useState(matchInfo.time || '');
   const [location, setLocation] = useState(matchInfo.location || '');
+  const [homeScore, setHomeScore] = useState(matchInfo.homeScore ?? '');
+  const [awayScore, setAwayScore] = useState(matchInfo.awayScore ?? '');
 
   const handleSave = () => {
-    setMatchInfo({ opponent, date, time, location });
+    setMatchInfo({ 
+      opponent, 
+      date, 
+      time, 
+      location,
+      homeScore: homeScore !== '' ? parseInt(homeScore) : null,
+      awayScore: awayScore !== '' ? parseInt(awayScore) : null
+    });
     setOpen(false);
   };
 
@@ -25,7 +34,9 @@ export const MatchInfoDialog = ({ matchInfo, setMatchInfo }) => {
     setDate('');
     setTime('');
     setLocation('');
-    setMatchInfo({ opponent: '', date: '', time: '', location: '' });
+    setHomeScore('');
+    setAwayScore('');
+    setMatchInfo({ opponent: '', date: '', time: '', location: '', homeScore: null, awayScore: null });
     setOpen(false);
   };
 
@@ -96,6 +107,43 @@ export const MatchInfoDialog = ({ matchInfo, setMatchInfo }) => {
               />
             </div>
           </div>
+          
+          {/* Resultat */}
+          <div className="pt-2 border-t border-white/10">
+            <label className="text-sm text-white/70 mb-2 block">
+              Resultat (efter match)
+            </label>
+            <div className="flex items-center justify-center gap-3">
+              <div className="text-center">
+                <div className="text-xs text-white/50 mb-1">Östra Almby</div>
+                <input
+                  type="number"
+                  min="0"
+                  max="99"
+                  value={homeScore}
+                  onChange={(e) => setHomeScore(e.target.value)}
+                  placeholder="-"
+                  className="w-16 h-14 text-center text-2xl font-bold bg-green-500/20 border-2 border-green-500/50 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-green-500"
+                  data-testid="home-score-input"
+                />
+              </div>
+              <span className="text-2xl font-bold text-white/50">-</span>
+              <div className="text-center">
+                <div className="text-xs text-white/50 mb-1">{opponent || 'Motståndare'}</div>
+                <input
+                  type="number"
+                  min="0"
+                  max="99"
+                  value={awayScore}
+                  onChange={(e) => setAwayScore(e.target.value)}
+                  placeholder="-"
+                  className="w-16 h-14 text-center text-2xl font-bold bg-white/10 border-2 border-white/20 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-green-500"
+                  data-testid="away-score-input"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="flex gap-2 pt-2">
             <button
               onClick={handleClear}

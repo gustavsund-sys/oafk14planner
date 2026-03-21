@@ -32,6 +32,21 @@ export const Pitch = ({ playersOnPitch, matchInfo }) => {
         </div>
       )}
 
+      {/* Scoreboard */}
+      {(matchInfo?.homeScore !== null && matchInfo?.homeScore !== undefined) && (
+        <div className="scoreboard">
+          <div className="score-team">
+            <span className="score-name">ÖA</span>
+            <span className="score-value score-home">{matchInfo.homeScore}</span>
+          </div>
+          <span className="score-separator">-</span>
+          <div className="score-team">
+            <span className="score-value score-away">{matchInfo.awayScore ?? 0}</span>
+            <span className="score-name">{matchInfo.opponent?.substring(0, 3).toUpperCase() || 'MOT'}</span>
+          </div>
+        </div>
+      )}
+
       {/* Pitch markings */}
       <div className="pitch-markings">
         {/* Center line */}

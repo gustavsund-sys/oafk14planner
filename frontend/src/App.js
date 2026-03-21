@@ -16,7 +16,7 @@ function App() {
   const [targetPlayers, setTargetPlayers] = useState(11);
   const [activePlayer, setActivePlayer] = useState(null);
   const [benchCollapsed, setBenchCollapsed] = useState(false);
-  const [matchInfo, setMatchInfo] = useState({ opponent: '', date: '', time: '', location: '' });
+  const [matchInfo, setMatchInfo] = useState({ opponent: '', date: '', time: '', location: '', homeScore: null, awayScore: null });
   const lastPointerPosition = useRef({ x: 0, y: 0 });
 
   // Players not on pitch or subs (available in main bench)
