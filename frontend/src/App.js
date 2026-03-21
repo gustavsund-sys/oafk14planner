@@ -1,5 +1,5 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { DndContext, DragOverlay, pointerWithin, useSensor, useSensors, TouchSensor, MouseSensor } from '@dnd-kit/core';
+import React, { useState, useCallback, useRef } from 'react';
+import { DndContext, DragOverlay, pointerWithin, useSensor, useSensors, TouchSensor, MouseSensor, useDndMonitor } from '@dnd-kit/core';
 import "@/App.css";
 import { Pitch } from './components/Pitch';
 import { Bench } from './components/Bench';
@@ -12,7 +12,7 @@ function App() {
   const [playersOnPitch, setPlayersOnPitch] = useState([]);
   const [targetPlayers, setTargetPlayers] = useState(11);
   const [activePlayer, setActivePlayer] = useState(null);
-  const pitchRef = useRef(null);
+  const lastPointerPosition = useRef({ x: 0, y: 0 });
 
   // Players not on pitch (on bench)
   const playersOnBench = allPlayers.filter(
@@ -42,6 +42,24 @@ function App() {
     }
   }, []);
 
+  const handleDragMove = useCallback((event) => {
+    // Track the pointer position during drag
+    if (event.activatorEvent) {
+      const touch = event.activatorEvent.touches?.[0];
+      if (touch) {
+        lastPointerPosition.current = {
+          x: touch.clientX + (event.delta?.x || 0),
+          y: touch.clientY + (event.delta?.y || 0),
+        };
+      } else {
+        lastPointerPosition.current = {
+          x: event.activatorEvent.clientX + (event.delta?.x || 0),
+          y: event.activatorEvent.clientY + (event.delta?.y || 0),
+        };
+      }
+    }
+  }, []);
+
   const handleDragEnd = useCallback((event) => {
     const { active, over } = event;
     setActivePlayer(null);
@@ -54,23 +72,18 @@ function App() {
 
     // Dropped on pitch
     if (over.id === 'pitch') {
-      // Get the pitch element to calculate relative position
       const pitchElement = document.querySelector('[data-testid="football-pitch"]');
       if (!pitchElement || !playerData) return;
 
       const pitchRect = pitchElement.getBoundingClientRect();
       
-      // Get the pointer position from the drag event
-      const pointerX = event.activatorEvent?.clientX || 0;
-      const pointerY = event.activatorEvent?.clientY || 0;
-      
-      // Calculate position with the delta from drag
-      const finalX = pointerX + (event.delta?.x || 0);
-      const finalY = pointerY + (event.delta?.y || 0);
+      // Use tracked pointer position
+      const pointerX = lastPointerPosition.current.x;
+      const pointerY = lastPointerPosition.current.y;
       
       // Convert to percentage relative to pitch
-      let xPercent = ((finalX - pitchRect.left) / pitchRect.width) * 100;
-      let yPercent = ((finalY - pitchRect.top) / pitchRect.height) * 100;
+      let xPercent = ((pointerX - pitchRect.left) / pitchRect.width) * 100;
+      let yPercent = ((pointerY - pitchRect.top) / pitchRect.height) * 100;
 
       // Clamp to pitch bounds with padding
       xPercent = Math.max(8, Math.min(92, xPercent));
@@ -110,6 +123,7 @@ function App() {
       sensors={sensors}
       collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
+      onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
     >
       <div className="app-container" data-testid="app-container">
@@ -143,7 +157,7 @@ function App() {
         </header>
 
         {/* Pitch */}
-        <Pitch playersOnPitch={playersOnPitch} ref={pitchRef} />
+        <Pitch playersOnPitch={playersOnPitch} />
 
         {/* Bench */}
         <Bench players={playersOnBench} />
