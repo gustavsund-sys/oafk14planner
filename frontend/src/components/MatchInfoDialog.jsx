@@ -13,9 +13,10 @@ export const MatchInfoDialog = ({ matchInfo, setMatchInfo }) => {
   const [opponent, setOpponent] = useState(matchInfo.opponent || '');
   const [date, setDate] = useState(matchInfo.date || '');
   const [time, setTime] = useState(matchInfo.time || '');
+  const [location, setLocation] = useState(matchInfo.location || '');
 
   const handleSave = () => {
-    setMatchInfo({ opponent, date, time });
+    setMatchInfo({ opponent, date, time, location });
     setOpen(false);
   };
 
@@ -23,7 +24,8 @@ export const MatchInfoDialog = ({ matchInfo, setMatchInfo }) => {
     setOpponent('');
     setDate('');
     setTime('');
-    setMatchInfo({ opponent: '', date: '', time: '' });
+    setLocation('');
+    setMatchInfo({ opponent: '', date: '', time: '', location: '' });
     setOpen(false);
   };
 
@@ -53,6 +55,19 @@ export const MatchInfoDialog = ({ matchInfo, setMatchInfo }) => {
               placeholder="Ange lagnamn..."
               className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-green-500"
               data-testid="opponent-input"
+            />
+          </div>
+          <div>
+            <label className="text-sm text-white/70 mb-2 block">
+              Plats
+            </label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Ange arena/plats..."
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-green-500"
+              data-testid="location-input"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">

@@ -23,9 +23,10 @@ export const Pitch = ({ playersOnPitch, matchInfo }) => {
       {matchInfo?.opponent && (
         <div className="opponent-overlay">
           <div className="opponent-name">{matchInfo.opponent}</div>
-          {(matchInfo.date || matchInfo.time) && (
+          {(matchInfo.date || matchInfo.time || matchInfo.location) && (
             <div className="match-datetime">
               {formatDate(matchInfo.date)} {matchInfo.time}
+              {matchInfo.location && <span> • {matchInfo.location}</span>}
             </div>
           )}
         </div>
