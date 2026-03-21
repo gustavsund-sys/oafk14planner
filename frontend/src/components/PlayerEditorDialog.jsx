@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,10 +8,13 @@ import {
 } from './ui/dialog';
 import { Users, Pencil, Trash, Plus, Camera } from '@phosphor-icons/react';
 
-export const PlayerEditorDialog = ({ players, setPlayers }) => {
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+export const PlayerEditorDialog = ({ players, setPlayers, refreshPlayers }) => {
   const [open, setOpen] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   // Form state
   const [name, setName] = useState('');
@@ -34,27 +37,47 @@ export const PlayerEditorDialog = ({ players, setPlayers }) => {
     setShowAddForm(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim() || !number) return;
+    setIsLoading(true);
 
-    if (editingPlayer) {
-      // Update existing player
-      setPlayers(prev => prev.map(p => 
-        p.id === editingPlayer.id 
-          ? { ...p, name: name.trim(), number: parseInt(number), image: imageUrl || p.image }
-          : p
-      ));
-    } else {
-      // Add new player
-      const newPlayer = {
-        id: Date.now(),
-        name: name.trim(),
-        number: parseInt(number),
-        image: imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(name.trim())}&background=171717&color=fff&size=96`
-      };
-      setPlayers(prev => [...prev, newPlayer]);
+    try {
+      if (editingPlayer) {
+        // Update existing player
+        const response = await fetch(`${API_URL}/api/players/${editingPlayer.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name.trim(),
+            number: parseInt(number),
+            image: imageUrl || undefined
+          })
+        });
+        
+        if (response.ok) {
+          refreshPlayers();
+        }
+      } else {
+        // Add new player
+        const response = await fetch(`${API_URL}/api/players`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name.trim(),
+            number: parseInt(number),
+            image: imageUrl || null
+          })
+        });
+        
+        if (response.ok) {
+          refreshPlayers();
+        }
+      }
+    } catch (error) {
+      console.error('Error saving player:', error);
     }
 
+    setIsLoading(false);
     setEditingPlayer(null);
     setShowAddForm(false);
     setName('');
@@ -62,9 +85,21 @@ export const PlayerEditorDialog = ({ players, setPlayers }) => {
     setImageUrl('');
   };
 
-  const handleDelete = (playerId) => {
+  const handleDelete = async (playerId) => {
     if (window.confirm('Vill du ta bort denna spelare?')) {
-      setPlayers(prev => prev.filter(p => p.id !== playerId));
+      setIsLoading(true);
+      try {
+        const response = await fetch(`${API_URL}/api/players/${playerId}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          refreshPlayers();
+        }
+      } catch (error) {
+        console.error('Error deleting player:', error);
+      }
+      setIsLoading(false);
     }
   };
 
@@ -166,15 +201,16 @@ export const PlayerEditorDialog = ({ players, setPlayers }) => {
               <button
                 onClick={cancelEdit}
                 className="flex-1 py-2 px-4 bg-white/10 text-white/70 rounded-lg font-medium hover:bg-white/20"
+                disabled={isLoading}
               >
                 Avbryt
               </button>
               <button
                 onClick={handleSave}
-                disabled={!name.trim() || !number}
+                disabled={!name.trim() || !number || isLoading}
                 className="flex-1 py-2 px-4 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 disabled:opacity-50"
               >
-                {editingPlayer ? 'Spara' : 'Lägg till'}
+                {isLoading ? 'Sparar...' : (editingPlayer ? 'Spara' : 'Lägg till')}
               </button>
             </div>
           </div>
@@ -209,12 +245,14 @@ export const PlayerEditorDialog = ({ players, setPlayers }) => {
                   <button
                     onClick={() => handleEdit(player)}
                     className="p-2 text-blue-400/70 hover:text-blue-400 hover:bg-blue-500/10 rounded"
+                    disabled={isLoading}
                   >
                     <Pencil size={18} />
                   </button>
                   <button
                     onClick={() => handleDelete(player.id)}
                     className="p-2 text-red-400/70 hover:text-red-400 hover:bg-red-500/10 rounded"
+                    disabled={isLoading}
                   >
                     <Trash size={18} />
                   </button>

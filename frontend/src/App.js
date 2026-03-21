@@ -9,10 +9,12 @@ import { SettingsDialog } from './components/SettingsDialog';
 import { MatchInfoDialog } from './components/MatchInfoDialog';
 import { SaveLoadDialog } from './components/SaveLoadDialog';
 import { PlayerEditorDialog } from './components/PlayerEditorDialog';
-import { players as initialPlayers } from './data/players';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 function App() {
-  const [allPlayers, setAllPlayers] = useState(initialPlayers);
+  const [allPlayers, setAllPlayers] = useState([]);
+  const [isLoadingPlayers, setIsLoadingPlayers] = useState(true);
   const [playersOnPitch, setPlayersOnPitch] = useState([]);
   const [playersOnSubs, setPlayersOnSubs] = useState([]);
   const [targetPlayers, setTargetPlayers] = useState(11);
@@ -20,6 +22,26 @@ function App() {
   const [benchCollapsed, setBenchCollapsed] = useState(false);
   const [matchInfo, setMatchInfo] = useState({ opponent: '', date: '', time: '', location: '', homeScore: null, awayScore: null });
   const lastPointerPosition = useRef({ x: 0, y: 0 });
+
+  // Fetch players from API
+  const fetchPlayers = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/players`);
+      if (response.ok) {
+        const data = await response.json();
+        setAllPlayers(data);
+      }
+    } catch (error) {
+      console.error('Error fetching players:', error);
+    } finally {
+      setIsLoadingPlayers(false);
+    }
+  }, []);
+
+  // Load players on mount
+  useEffect(() => {
+    fetchPlayers();
+  }, [fetchPlayers]);
 
   // Players not on pitch or subs (available in main bench)
   const playersOnBench = allPlayers.filter(
@@ -199,6 +221,7 @@ function App() {
             <PlayerEditorDialog
               players={allPlayers}
               setPlayers={setAllPlayers}
+              refreshPlayers={fetchPlayers}
             />
 
             {/* Save/Load */}

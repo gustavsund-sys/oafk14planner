@@ -107,6 +107,108 @@ async def get_status_checks():
     return status_checks
 
 
+# Player management endpoints
+@api_router.get("/players")
+async def get_players():
+    """Get all players"""
+    players = await db.players.find({}, {"_id": 0}).to_list(100)
+    
+    # If no players exist, seed with initial data
+    if not players:
+        initial_players = [
+            {"id": 1, "number": 2, "name": "Edgar Zakaryan", "image": "/players/player_2.png"},
+            {"id": 2, "number": 3, "name": "Alfred Strandberg", "image": "/players/player_3.png"},
+            {"id": 3, "number": 4, "name": "Ebbe Israelsson", "image": "/players/player_4.png"},
+            {"id": 4, "number": 6, "name": "Frans Rindhoff", "image": "/players/player_6.png"},
+            {"id": 5, "number": 7, "name": "Hugo Wirén", "image": "/players/player_7.png"},
+            {"id": 6, "number": 8, "name": "Jack Orrvik", "image": "/players/player_8.png"},
+            {"id": 7, "number": 10, "name": "Vincent Johansson", "image": "/players/player_10.png"},
+            {"id": 8, "number": 11, "name": "William Hagersten", "image": "/players/player_11.png"},
+            {"id": 9, "number": 12, "name": "Melvin Catic", "image": "/players/player_12.png"},
+            {"id": 10, "number": 13, "name": "Olle Lundhede", "image": "/players/player_13.png"},
+            {"id": 11, "number": 14, "name": "Nils Sjökvist", "image": "/players/player_14.png"},
+            {"id": 12, "number": 16, "name": "Kalle Remmegård", "image": "/players/player_16.png"},
+            {"id": 13, "number": 17, "name": "William Krey", "image": "/players/player_17.png"},
+            {"id": 14, "number": 19, "name": "Milian Inci", "image": "/players/player_19.png"},
+            {"id": 15, "number": 20, "name": "Sixten Bejeryd", "image": "/players/player_20.png"},
+            {"id": 16, "number": 21, "name": "Ebbe Bergström", "image": "/players/player_21.png"},
+            {"id": 17, "number": 22, "name": "Hugo Källén", "image": "/players/player_22.png"},
+            {"id": 18, "number": 23, "name": "Thor Buskqvist", "image": "/players/player_23.png"},
+            {"id": 19, "number": 24, "name": "Konrad Hallqvist Engman", "image": "/players/player_24.png"},
+            {"id": 20, "number": 25, "name": "Hilmer Furåker", "image": "/players/player_25.png"},
+            {"id": 21, "number": 26, "name": "Nellion Zetterlöf", "image": "/players/player_26.png"},
+            {"id": 22, "number": 27, "name": "Kai Hallden", "image": "/players/player_27.png"},
+            {"id": 23, "number": 28, "name": "Charlie Wirlander Beydoun", "image": "/players/player_28.png"},
+            {"id": 24, "number": 30, "name": "Vidar Ahltun", "image": "/players/player_30.png"},
+        ]
+        await db.players.insert_many(initial_players)
+        players = initial_players
+    
+    return players
+
+
+class PlayerCreate(BaseModel):
+    name: str
+    number: int
+    image: Optional[str] = None
+
+
+class PlayerUpdate(BaseModel):
+    name: Optional[str] = None
+    number: Optional[int] = None
+    image: Optional[str] = None
+
+
+@api_router.post("/players")
+async def create_player(player: PlayerCreate):
+    """Add a new player"""
+    # Get next ID
+    last_player = await db.players.find_one(sort=[("id", -1)])
+    new_id = (last_player["id"] + 1) if last_player else 1
+    
+    new_player = {
+        "id": new_id,
+        "name": player.name,
+        "number": player.number,
+        "image": player.image or f"https://ui-avatars.com/api/?name={player.name}&background=171717&color=fff&size=96"
+    }
+    
+    await db.players.insert_one(new_player)
+    # Return without _id
+    return {"id": new_id, "name": new_player["name"], "number": new_player["number"], "image": new_player["image"]}
+
+
+@api_router.put("/players/{player_id}")
+async def update_player(player_id: int, player: PlayerUpdate):
+    """Update a player"""
+    update_data = {k: v for k, v in player.model_dump().items() if v is not None}
+    
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No data to update")
+    
+    result = await db.players.update_one(
+        {"id": player_id},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Player not found")
+    
+    updated = await db.players.find_one({"id": player_id}, {"_id": 0})
+    return updated
+
+
+@api_router.delete("/players/{player_id}")
+async def delete_player(player_id: int):
+    """Delete a player"""
+    result = await db.players.delete_one({"id": player_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Player not found")
+    
+    return {"message": "Player deleted"}
+
+
 # Squad sharing endpoints
 @api_router.post("/squads/share")
 async def share_squad(squad: ShareSquadRequest):
