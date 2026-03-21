@@ -36,7 +36,7 @@
 .football-pitch {
   width: 100%;
   max-width: 380px;
-  aspect-ratio: 68 / 105;
+  aspect-ratio: 68 / 70;
   background: #14532D;
   border-radius: 8px;
   position: relative;
@@ -73,18 +73,17 @@
   position: absolute;
   left: 8%;
   right: 8%;
-  top: 50%;
+  top: 15%;
   height: 2px;
   background: rgba(255, 255, 255, 0.7);
-  transform: translateY(-50%);
 }
 
 /* Center circle */
 .center-circle {
   position: absolute;
   left: 50%;
-  top: 50%;
-  width: 25%;
+  top: 15%;
+  width: 30%;
   aspect-ratio: 1;
   border: 2px solid rgba(255, 255, 255, 0.7);
   border-radius: 50%;
@@ -95,7 +94,7 @@
 .center-dot {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 15%;
   width: 6px;
   height: 6px;
   background: rgba(255, 255, 255, 0.7);
@@ -109,14 +108,12 @@
   left: 50%;
   transform: translateX(-50%);
   width: 60%;
-  height: 16%;
+  height: 24%;
   border: 2px solid rgba(255, 255, 255, 0.7);
 }
 
 .penalty-area-top {
-  top: 0;
-  border-top: none;
-  border-radius: 0 0 4px 4px;
+  display: none;
 }
 
 .penalty-area-bottom {
@@ -131,14 +128,12 @@
   left: 50%;
   transform: translateX(-50%);
   width: 28%;
-  height: 6%;
+  height: 9%;
   border: 2px solid rgba(255, 255, 255, 0.7);
 }
 
 .goal-area-top {
-  top: 0;
-  border-top: none;
-  border-radius: 0 0 2px 2px;
+  display: none;
 }
 
 .goal-area-bottom {
@@ -153,15 +148,13 @@
   left: 50%;
   transform: translateX(-50%);
   width: 20%;
-  height: 3%;
+  height: 4%;
   background: rgba(255, 255, 255, 0.15);
   border: 2px solid rgba(255, 255, 255, 0.8);
 }
 
 .goal-top {
-  top: 0;
-  border-top: none;
-  border-radius: 0 0 3px 3px;
+  display: none;
 }
 
 .goal-bottom {
@@ -175,49 +168,46 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  width: 20%;
+  width: 24%;
   aspect-ratio: 2 / 1;
   border: 2px solid rgba(255, 255, 255, 0.7);
   border-radius: 50%;
 }
 
 .penalty-arc-top {
-  top: 14%;
-  clip-path: inset(50% 0 0 0);
+  display: none;
 }
 
 .penalty-arc-bottom {
-  bottom: 14%;
+  bottom: 21%;
   clip-path: inset(0 0 50% 0);
 }
 
 /* Corner arcs */
 .corner-arc {
   position: absolute;
-  width: 5%;
+  width: 6%;
   aspect-ratio: 1;
   border: 2px solid rgba(255, 255, 255, 0.7);
   border-radius: 50%;
 }
 
 .corner-top-left {
-  top: -2.5%;
-  left: -2.5%;
+  display: none;
 }
 
 .corner-top-right {
-  top: -2.5%;
-  right: -2.5%;
+  display: none;
 }
 
 .corner-bottom-left {
-  bottom: -2.5%;
-  left: -2.5%;
+  bottom: -3%;
+  left: -3%;
 }
 
 .corner-bottom-right {
-  bottom: -2.5%;
-  right: -2.5%;
+  bottom: -3%;
+  right: -3%;
 }
 
 /* Players drop zone */
