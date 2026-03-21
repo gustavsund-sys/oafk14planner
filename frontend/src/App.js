@@ -1,12 +1,11 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { DndContext, DragOverlay, pointerWithin, useSensor, useSensors, TouchSensor, MouseSensor, useDndMonitor } from '@dnd-kit/core';
+import { DndContext, DragOverlay, pointerWithin, useSensor, useSensors, TouchSensor, MouseSensor } from '@dnd-kit/core';
 import "@/App.css";
 import { Pitch } from './components/Pitch';
 import { Bench } from './components/Bench';
 import { Player } from './components/Player';
 import { SettingsDialog } from './components/SettingsDialog';
 import { players as allPlayers } from './data/players';
-import { SoccerBall } from '@phosphor-icons/react';
 
 function App() {
   const [playersOnPitch, setPlayersOnPitch] = useState([]);
@@ -129,9 +128,9 @@ function App() {
       <div className="app-container" data-testid="app-container">
         {/* Header */}
         <header className="app-header">
-          <div className="flex items-center gap-3">
-            <SoccerBall size={28} weight="fill" className="text-green-500" />
-            <h1 className="font-display text-xl font-bold tracking-tight">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="Östra Almby FK" className="h-8 w-auto rounded" style={{background: 'white', padding: '2px'}} />
+            <h1 className="font-display text-lg font-bold tracking-tight">
               ÖSTRA SQUAD
             </h1>
           </div>
