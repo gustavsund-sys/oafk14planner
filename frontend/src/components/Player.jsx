@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 
 export const Player = ({ player, isOnPitch = false, style = {} }) => {
-  const [showName, setShowName] = useState(false);
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: player.id,
     data: { player, isOnPitch },
@@ -16,13 +15,8 @@ export const Player = ({ player, isOnPitch = false, style = {} }) => {
       }
     : {};
 
-  const handleClick = (e) => {
-    if (isOnPitch && !isDragging) {
-      e.stopPropagation();
-      setShowName(prev => !prev);
-      setTimeout(() => setShowName(false), 2000);
-    }
-  };
+  // Get first name only for display on pitch
+  const firstName = player.name.split(' ')[0];
 
   return (
     <div
@@ -32,25 +26,22 @@ export const Player = ({ player, isOnPitch = false, style = {} }) => {
       className={`draggable-player relative cursor-grab ${isDragging ? 'player-dragging' : ''}`}
       style={{ ...style, ...dragStyle }}
       data-testid={`player-${player.number}`}
-      onClick={handleClick}
     >
-      <div className={`relative ${isOnPitch ? 'player-on-pitch' : ''}`}>
+      <div className={`relative ${isOnPitch ? 'player-on-pitch-avatar' : ''}`}>
         <img
           src={player.image}
           alt={player.name}
-          className="player-avatar"
+          className={isOnPitch ? 'player-avatar-large' : 'player-avatar'}
           draggable={false}
           onError={(e) => {
             e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=171717&color=fff&size=96`;
           }}
         />
-        <div className="player-number font-display">{player.number}</div>
-        {showName && isOnPitch && (
-          <div className="player-tooltip">
-            {player.name}
-          </div>
-        )}
+        <div className={isOnPitch ? 'player-number-large font-display' : 'player-number font-display'}>{player.number}</div>
       </div>
+      {isOnPitch && (
+        <div className="player-pitch-name">{firstName}</div>
+      )}
     </div>
   );
 };

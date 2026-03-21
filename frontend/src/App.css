@@ -294,7 +294,7 @@
   display: none;
 }
 
-/* Player avatar */
+/* Player avatar - bench size */
 .player-avatar {
   width: 42px;
   height: 42px;
@@ -307,7 +307,24 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Player number badge */
+/* Player avatar - pitch size (larger) */
+.player-avatar-large {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 2.5px solid white;
+  background: #171717;
+  object-fit: cover;
+  object-position: center top;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.player-on-pitch-avatar {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+}
+
+/* Player number badge - bench size */
 .player-number {
   position: absolute;
   bottom: -2px;
@@ -324,6 +341,36 @@
   font-weight: 800;
   color: white;
   z-index: 5;
+}
+
+/* Player number badge - pitch size (larger) */
+.player-number-large {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  background: #000000;
+  border: 2px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: white;
+  z-index: 5;
+}
+
+/* Player name on pitch */
+.player-pitch-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  margin-top: 2px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
 }
 
 /* Player on pitch */
