@@ -1,0 +1,112 @@
+{
+  "theme": "dark",
+  "typography": {
+    "headings": {
+      "font": "Barlow Condensed",
+      "weights": ["800", "900"],
+      "usage": "Team Name, Player Numbers, Large Counters"
+    },
+    "body": {
+      "font": "Inter",
+      "weights": ["400", "500", "700"],
+      "usage": "Player Names, Subtitles, UI elements, Settings"
+    }
+  },
+  "colors": {
+    "background": "#050505",
+    "pitch": {
+      "base": "#14532D",
+      "stripe": "rgba(0, 0, 0, 0.08)",
+      "lines": "#FFFFFF"
+    },
+    "surface": {
+      "bench": "rgba(10, 10, 10, 0.85)",
+      "card": "#171717"
+    },
+    "primary": "#22C55E",
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#A3A3A3"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "Bench drawer uses high-end glass (bg-black/80 with backdrop-blur-2xl) and a sharp 1px top border (border-white/10) to separate it from the pitch.",
+    "textures": "Pitch uses alternating green stripes via CSS repeating-linear-gradient to simulate mowed grass. Very subtle to not distract from the players.",
+    "shadows": "Players on the pitch have drop-shadow-2xl to float above the grass, increasing contrast."
+  },
+  "layouts": {
+    "app": "Strictly 100dvh, flex column. Prevent overscroll on mobile body.",
+    "header": "Minimal. Height ~60px. Flex row, space-between. Shows 'Östra Squad' and Settings icon.",
+    "pitch_area": "Flex-1 relative container with generous padding. The actual pitch should have margin inside to prevent players from overlapping the absolute screen edges.",
+    "bench": "Fixed at the bottom. Height ~110px. Horizontal scrolling flex container for substitute players. overflow-x-auto, hide scrollbar. Items gap-4."
+  },
+  "components": [
+    {
+      "name": "Pitch",
+      "description": "Vertical football field. Requires relative positioning. Inner absolute elements for center line, center circle, top/bottom penalty areas, and goals.",
+      "path": "src/components/Pitch.jsx"
+    },
+    {
+      "name": "Player",
+      "description": "Draggable component. Round avatar (w-12 h-12) with object-cover, white border. A small black circle badge at bottom-right containing the player number in white.",
+      "path": "src/components/Player.jsx"
+    },
+    {
+      "name": "Bench",
+      "description": "Bottom glass panel. Houses players where isOnPitch === false.",
+      "path": "src/components/Bench.jsx"
+    },
+    {
+      "name": "SettingsDialog",
+      "description": "Shadcn Dialog to select target number of players on the pitch (e.g., 5, 7, 9, 11).",
+      "path": "src/components/SettingsDialog.jsx"
+    }
+  ],
+  "motion": {
+    "drag": "Crucial: Player elements must be seamlessly draggable. Add visual feedback (scale: 1.15, zIndex: 50, cursor: grabbing) while dragging.",
+    "interactions": "Smooth layout transitions when players move between the bench and the pitch."
+  },
+  "media": {
+    "icons": "Phosphor Icons (@phosphor-icons/react).",
+    "placeholders": [
+      {
+        "url": "https://images.unsplash.com/photo-1597117753473-9a20330f5fb7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHw0fHxib3klMjBmYWNlJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc0MTIyMzY3fDA&ixlib=rb-4.1.0&q=85",
+        "category": "Player Avatar"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1682027598723-25c243e27a40?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHwxfHxib3klMjBmYWNlJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc0MTIyMzY3fDA&ixlib=rb-4.1.0&q=85",
+        "category": "Player Avatar"
+      },
+      {
+        "url": "https://images.pexels.com/photos/7275812/pexels-photo-7275812.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "Player Avatar"
+      },
+      {
+        "url": "https://images.pexels.com/photos/2349219/pexels-photo-2349219.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "Player Avatar"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Build a mobile-first web app for 'Östra Squad'. Target iOS touch interactions natively.",
+    "Recommend using `@dnd-kit/core` with `useDraggable` and `useDroppable` or a unified `framer-motion` layout approach. Dragging out of a horizontally scrollable container (Bench) onto a free-form absolute canvas (Pitch) can be tricky. @dnd-kit handles portals and scroll containers well. If using framer-motion, ensure the dragged element doesn't get clipped by the bench's overflow-hidden/overflow-x-auto.",
+    "Generate mock data for 24 players. Give them youth-sounding names, numbers (1-24), and placeholder avatar images (cycle through the provided urls).",
+    "Implement the pitch design using raw CSS + Tailwind. A green rectangle with a subtle alternating stripe effect. Inside: a horizontal white line at 50% height. A white circle dead center. Two white boxes at the top and bottom for penalty areas. Use border-2 border-white/80.",
+    "Header should display the team name and a counter 'X / Y Players' (where Y is chosen in settings). Highlight the counter if X > Y.",
+    "There should be a 'Settings' icon in the header that opens a dialog (Shadcn UI) to set 'Number of players on pitch' (e.g., 5, 7, 9, 11).",
+    "Ensure the entire app is wrapped in a container with `h-[100dvh] w-screen overflow-hidden bg-[#050505] text-white` to prevent standard mobile scrolling. Add `touch-action: none` to draggable players.",
+    "Player icons: w-12 h-12 rounded-full border-2 border-white bg-black object-cover. The player number must be a small badge (w-5 h-5 bg-black rounded-full text-[10px] font-bold flex items-center justify-center absolute -bottom-1 -right-1 z-10).",
+    "Bench should support horizontal scrolling. Players should look like neat little circles with their numbers.",
+    "When a player is dropped on the Pitch, their position must be absolutely positioned based on the drop coordinates relative to the Pitch container."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "You MUST NOT apply universal transition like `transition: all`.",
+    "You MUST NOT center align the app container in CSS.",
+    "Use named exports for components and default exports for pages.",
+    "Use sonner for toast notifications.",
+    "All interactive elements MUST have data-testid attributes.",
+    "Do NOT use generic 'blue' primary colors. The app is Black, Green, White.",
+    "Install `@phosphor-icons/react` for icons if needed.",
+    "CRITICAL: Avoid transparent backgrounds on the settings dialog overlay; ensure proper backdrop blur."
+  ]
+}
