@@ -37,12 +37,12 @@ export const SaveLoadDialog = ({
     const sharedData = params.get('squad');
     if (sharedData) {
       try {
-        const decoded = JSON.parse(atob(sharedData));
+        const decoded = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(sharedData)))));
         onLoadSquad(decoded);
         // Clear URL
         window.history.replaceState({}, '', window.location.pathname);
       } catch (e) {
-        console.error('Failed to load shared squad');
+        console.error('Failed to load shared squad:', e);
       }
     }
   };
@@ -91,12 +91,19 @@ export const SaveLoadDialog = ({
       playersOnSubs: squad.playersOnSubs,
       matchInfo: squad.matchInfo
     };
-    const encoded = btoa(JSON.stringify(shareData));
+    // Use encodeURIComponent for safe URL encoding
+    const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(shareData)))));
     const shareUrl = `${window.location.origin}${window.location.pathname}?squad=${encoded}`;
     
     navigator.clipboard.writeText(shareUrl).then(() => {
       setShareMessage('Länk kopierad!');
       setTimeout(() => setShareMessage(''), 2000);
+    }).catch(() => {
+      // Fallback for iOS
+      setImportCode(shareUrl);
+      setActiveTab('import');
+      setShareMessage('Kopiera länken nedan');
+      setTimeout(() => setShareMessage(''), 3000);
     });
   };
 
@@ -104,22 +111,54 @@ export const SaveLoadDialog = ({
     if (!importCode.trim()) return;
     
     try {
-      // Try to parse as URL first
       let data;
-      if (importCode.includes('?squad=')) {
-        const url = new URL(importCode);
-        const squadParam = url.searchParams.get('squad');
-        data = JSON.parse(atob(squadParam));
+      const code = importCode.trim();
+      
+      // Try to parse as URL first
+      if (code.includes('?squad=') || code.includes('&squad=')) {
+        const urlMatch = code.match(/[?&]squad=([^&\s]+)/);
+        if (urlMatch) {
+          const squadParam = urlMatch[1];
+          // Try different decoding methods
+          try {
+            const decoded = decodeURIComponent(squadParam);
+            data = JSON.parse(decodeURIComponent(escape(atob(decoded))));
+          } catch {
+            try {
+              data = JSON.parse(atob(decodeURIComponent(squadParam)));
+            } catch {
+              data = JSON.parse(atob(squadParam));
+            }
+          }
+        }
       } else {
         // Try direct base64
-        data = JSON.parse(atob(importCode));
+        try {
+          data = JSON.parse(decodeURIComponent(escape(atob(code))));
+        } catch {
+          try {
+            data = JSON.parse(atob(code));
+          } catch {
+            data = JSON.parse(code);
+          }
+        }
       }
       
-      onLoadSquad(data);
-      setImportCode('');
-      setOpen(false);
+      if (data && (data.playersOnPitch !== undefined || data.name)) {
+        onLoadSquad(data);
+        setImportCode('');
+        setShareMessage('Squad importerad!');
+        setTimeout(() => {
+          setShareMessage('');
+          setOpen(false);
+        }, 1500);
+      } else {
+        throw new Error('Invalid data');
+      }
     } catch (e) {
-      alert('Kunde inte importera squad. Kontrollera länken/koden.');
+      console.error('Import error:', e);
+      setShareMessage('Fel: Kunde inte importera. Kontrollera länken.');
+      setTimeout(() => setShareMessage(''), 3000);
     }
   };
 
@@ -265,6 +304,13 @@ export const SaveLoadDialog = ({
 
         {activeTab === 'import' && (
           <div className="space-y-4">
+            {shareMessage && (
+              <div className={`text-center text-sm py-2 rounded-lg ${
+                shareMessage.includes('Fel') ? 'text-red-400 bg-red-500/10' : 'text-green-400 bg-green-500/10'
+              }`}>
+                {shareMessage}
+              </div>
+            )}
             <div>
               <label className="text-sm text-white/70 mb-2 block">
                 Klistra in delad länk
