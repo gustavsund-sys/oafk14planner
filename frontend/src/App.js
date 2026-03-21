@@ -8,9 +8,11 @@ import { Player } from './components/Player';
 import { SettingsDialog } from './components/SettingsDialog';
 import { MatchInfoDialog } from './components/MatchInfoDialog';
 import { SaveLoadDialog } from './components/SaveLoadDialog';
-import { players as allPlayers } from './data/players';
+import { PlayerEditorDialog } from './components/PlayerEditorDialog';
+import { players as initialPlayers } from './data/players';
 
 function App() {
+  const [allPlayers, setAllPlayers] = useState(initialPlayers);
   const [playersOnPitch, setPlayersOnPitch] = useState([]);
   const [playersOnSubs, setPlayersOnSubs] = useState([]);
   const [targetPlayers, setTargetPlayers] = useState(11);
@@ -24,6 +26,21 @@ function App() {
     (player) => !playersOnPitch.some((p) => p.player.id === player.id) &&
                 !playersOnSubs.some((p) => p.id === player.id)
   );
+  
+  // Update players on pitch/subs when allPlayers changes (e.g., player edited)
+  useEffect(() => {
+    // Update playersOnPitch with new player data
+    setPlayersOnPitch(prev => prev.map(p => {
+      const updated = allPlayers.find(ap => ap.id === p.player.id);
+      return updated ? { ...p, player: updated } : p;
+    }).filter(p => allPlayers.some(ap => ap.id === p.player.id)));
+    
+    // Update playersOnSubs with new player data
+    setPlayersOnSubs(prev => prev.map(p => {
+      const updated = allPlayers.find(ap => ap.id === p.id);
+      return updated || p;
+    }).filter(p => allPlayers.some(ap => ap.id === p.id)));
+  }, [allPlayers]);
 
   // Disable iOS bounce/scroll when dragging
   useEffect(() => {
@@ -178,6 +195,12 @@ function App() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Player Editor */}
+            <PlayerEditorDialog
+              players={allPlayers}
+              setPlayers={setAllPlayers}
+            />
+
             {/* Save/Load */}
             <SaveLoadDialog
               playersOnPitch={playersOnPitch}
