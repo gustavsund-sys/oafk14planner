@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
 
 export const Player = ({ player, isOnPitch = false, style = {} }) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -7,13 +8,13 @@ export const Player = ({ player, isOnPitch = false, style = {} }) => {
     data: { player, isOnPitch },
   });
 
-  const dragStyle = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0) scale(${isDragging ? 1.15 : 1})`,
-        zIndex: isDragging ? 100 : (isOnPitch ? 20 : 1),
-        transition: isDragging ? 'none' : 'transform 0.2s ease',
-      }
-    : {};
+  const dragStyle = {
+    transform: CSS.Translate.toString(transform),
+    scale: isDragging ? '1.15' : '1',
+    zIndex: isDragging ? 100 : (isOnPitch ? 20 : 1),
+    transition: isDragging ? 'scale 0.1s' : 'transform 0.15s ease, scale 0.1s',
+    opacity: isDragging ? 0.9 : 1,
+  };
 
   // Get first name only for display on pitch
   const firstName = player.name.split(' ')[0];
@@ -23,7 +24,7 @@ export const Player = ({ player, isOnPitch = false, style = {} }) => {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`draggable-player relative cursor-grab ${isDragging ? 'player-dragging' : ''}`}
+      className={`draggable-player relative ${isDragging ? 'player-dragging' : ''}`}
       style={{ ...style, ...dragStyle }}
       data-testid={`player-${player.number}`}
     >
@@ -52,13 +53,13 @@ export const PlayerCard = ({ player }) => {
     data: { player, isOnPitch: false },
   });
 
-  const dragStyle = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0) scale(${isDragging ? 1.15 : 1})`,
-        zIndex: isDragging ? 100 : 1,
-        transition: isDragging ? 'none' : 'transform 0.2s ease',
-      }
-    : {};
+  const dragStyle = {
+    transform: CSS.Translate.toString(transform),
+    scale: isDragging ? '1.15' : '1',
+    zIndex: isDragging ? 100 : 1,
+    transition: isDragging ? 'scale 0.1s' : 'transform 0.15s ease, scale 0.1s',
+    opacity: isDragging ? 0.8 : 1,
+  };
 
   // Get first name only for display
   const firstName = player.name.split(' ')[0];
@@ -68,7 +69,7 @@ export const PlayerCard = ({ player }) => {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`player-card draggable-player cursor-grab ${isDragging ? 'opacity-70' : ''}`}
+      className={`player-card draggable-player ${isDragging ? 'dragging' : ''}`}
       style={dragStyle}
       data-testid={`bench-player-${player.number}`}
     >

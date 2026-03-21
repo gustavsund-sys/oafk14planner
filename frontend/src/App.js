@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { DndContext, DragOverlay, pointerWithin, useSensor, useSensors, TouchSensor, MouseSensor } from '@dnd-kit/core';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { DndContext, DragOverlay, pointerWithin, useSensor, useSensors, TouchSensor, MouseSensor, PointerSensor } from '@dnd-kit/core';
 import "@/App.css";
 import { Pitch } from './components/Pitch';
 import { Bench } from './components/Bench';
@@ -18,17 +18,34 @@ function App() {
     (player) => !playersOnPitch.some((p) => p.player.id === player.id)
   );
 
-  // Configure sensors for touch and mouse
+  // Disable iOS bounce/scroll when dragging
+  useEffect(() => {
+    const preventDefault = (e) => {
+      if (activePlayer) {
+        e.preventDefault();
+      }
+    };
+    
+    document.addEventListener('touchmove', preventDefault, { passive: false });
+    return () => document.removeEventListener('touchmove', preventDefault);
+  }, [activePlayer]);
+
+  // Configure sensors for touch and mouse - optimized for iOS
   const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200,
-        tolerance: 8,
+        delay: 100,
+        tolerance: 5,
       },
     }),
     useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 5,
       },
     })
   );
