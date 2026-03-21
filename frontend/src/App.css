@@ -229,12 +229,15 @@
 
 /* Bench */
 .bench-container {
-  height: 120px;
+  height: 140px;
+  padding-bottom: 45px;
   background: rgba(10, 10, 10, 0.9);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 12px 16px;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 12px;
   flex-shrink: 0;
 }
 
