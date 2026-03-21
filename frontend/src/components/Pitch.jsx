@@ -2,10 +2,16 @@ import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Player } from './Player';
 
-export const Pitch = ({ playersOnPitch }) => {
+export const Pitch = ({ playersOnPitch, matchInfo }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: 'pitch',
   });
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+  };
 
   return (
     <div
@@ -13,6 +19,18 @@ export const Pitch = ({ playersOnPitch }) => {
       className={`football-pitch ${isOver ? 'ring-2 ring-green-400' : ''}`}
       data-testid="football-pitch"
     >
+      {/* Opponent info at top of pitch */}
+      {matchInfo?.opponent && (
+        <div className="opponent-overlay">
+          <div className="opponent-name">{matchInfo.opponent}</div>
+          {(matchInfo.date || matchInfo.time) && (
+            <div className="match-datetime">
+              {formatDate(matchInfo.date)} {matchInfo.time}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Pitch markings */}
       <div className="pitch-markings">
         {/* Center line */}

@@ -6,6 +6,7 @@ import { Bench } from './components/Bench';
 import { SubsBench } from './components/SubsBench';
 import { Player } from './components/Player';
 import { SettingsDialog } from './components/SettingsDialog';
+import { MatchInfoDialog } from './components/MatchInfoDialog';
 import { players as allPlayers } from './data/players';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
   const [targetPlayers, setTargetPlayers] = useState(11);
   const [activePlayer, setActivePlayer] = useState(null);
   const [benchCollapsed, setBenchCollapsed] = useState(false);
+  const [matchInfo, setMatchInfo] = useState({ opponent: '', date: '', time: '' });
   const lastPointerPosition = useRef({ x: 0, y: 0 });
 
   // Players not on pitch or subs (available in main bench)
@@ -174,7 +176,13 @@ function App() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {/* Match Info */}
+            <MatchInfoDialog
+              matchInfo={matchInfo}
+              setMatchInfo={setMatchInfo}
+            />
+
             {/* Player counter */}
             <div
               className={`
@@ -196,7 +204,7 @@ function App() {
 
         {/* Pitch Area with Subs Bench */}
         <div className="pitch-area">
-          <Pitch playersOnPitch={playersOnPitch} />
+          <Pitch playersOnPitch={playersOnPitch} matchInfo={matchInfo} />
           <SubsBench players={playersOnSubs} />
         </div>
 

@@ -231,6 +231,34 @@
   z-index: 10;
 }
 
+/* Opponent overlay */
+.opponent-overlay {
+  position: absolute;
+  top: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.opponent-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.match-datetime {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
 /* Bench */
 .bench-container {
   background: rgba(10, 10, 10, 0.9);
