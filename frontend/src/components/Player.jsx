@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 
 export const Player = ({ player, isOnPitch = false, style = {} }) => {
+  const [showName, setShowName] = useState(false);
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: player.id,
     data: { player, isOnPitch },
@@ -15,6 +16,14 @@ export const Player = ({ player, isOnPitch = false, style = {} }) => {
       }
     : {};
 
+  const handleClick = (e) => {
+    if (isOnPitch && !isDragging) {
+      e.stopPropagation();
+      setShowName(prev => !prev);
+      setTimeout(() => setShowName(false), 2000);
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -23,6 +32,7 @@ export const Player = ({ player, isOnPitch = false, style = {} }) => {
       className={`draggable-player relative cursor-grab ${isDragging ? 'player-dragging' : ''}`}
       style={{ ...style, ...dragStyle }}
       data-testid={`player-${player.number}`}
+      onClick={handleClick}
     >
       <div className={`relative ${isOnPitch ? 'player-on-pitch' : ''}`}>
         <img
@@ -35,6 +45,11 @@ export const Player = ({ player, isOnPitch = false, style = {} }) => {
           }}
         />
         <div className="player-number font-display">{player.number}</div>
+        {showName && isOnPitch && (
+          <div className="player-tooltip">
+            {player.name}
+          </div>
+        )}
       </div>
     </div>
   );
