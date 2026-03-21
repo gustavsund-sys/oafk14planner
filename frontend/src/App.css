@@ -36,7 +36,7 @@
 .pitch-area {
   flex: 1;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   justify-content: center;
   gap: 8px;
   padding: 8px 12px;
@@ -47,6 +47,8 @@
 .football-pitch {
   width: 100%;
   max-width: 320px;
+  height: 100%;
+  max-height: 100%;
   aspect-ratio: 68 / 70;
   background: #14532D;
   border-radius: 8px;
