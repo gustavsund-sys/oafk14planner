@@ -1,66 +1,104 @@
 # Östra Squad - Product Requirements Document
 
 ## Original Problem Statement
-Build a mobile-first web app called "Östra Squad" for football team Östra Almby that:
-- Displays a football pitch with two goals
-- Allows users to drag players from a bench onto the pitch
-- Players can be moved freely anywhere on the pitch
-- Shows player numbers on the player icons
-- Displays substitutes on the side bench
-- Works great on iPhone via the web
+Build an iPhone-optimized web app for football team "Östra Almby" (App name: Östra Squad) with:
+- Football pitch with free drag-and-drop placement of players
+- Collapsible substitutes bench
+- Team colors (green, black, white)
+- Match info overlay (opponent, date, time, location, scoreboard)
+- Formation saving/sharing via shortcodes
+- Global player management system (add/edit/remove players with images)
 
 ## User Personas
-- **Primary**: Football coaches who need to plan formations
+- **Primary**: Football coaches who need to plan formations and share them
 - **Secondary**: Team players who want to see their positions
 
 ## Core Requirements
 - [x] Football pitch with markings (center circle, penalty areas, goals)
-- [x] Drag and drop players from bench to pitch
+- [x] Drag and drop players from bench to pitch (iOS touch-optimized)
 - [x] Free movement of players on the pitch
 - [x] Player images with visible numbers
-- [x] Substitutes bench with horizontal scrolling
+- [x] Collapsible substitutes bench (grid layout)
 - [x] Settings to choose target number of players (5, 7, 9, 11)
 - [x] Mobile-first design (iPhone optimized)
 - [x] Team colors: Green, black, white
+- [x] Match info overlay on pitch
+- [x] Save/load formations via shortcodes (OSTRA-XXXX)
+- [x] Global player management (CRUD via MongoDB)
 
-## What's Been Implemented (Jan 2026)
+## What's Been Implemented
+
+### January 2026
 - ✅ Full football pitch with CSS-based markings
-- ✅ @dnd-kit drag-and-drop system for touch support
-- ✅ 24 players with real photos extracted from screenshots
+- ✅ @dnd-kit drag-and-drop system with iOS touch optimizations
+- ✅ 24 players with real photos from screenshots
 - ✅ Player counter showing X/Y with warning when over target
 - ✅ Settings dialog to change target player count
-- ✅ Glassmorphic bench with horizontal scrolling
-- ✅ Player tooltips showing name when clicked on pitch
+- ✅ Collapsible substitutes bench (grid layout)
 - ✅ Dark theme with team colors (green, black, white)
 
+### March 2026
+- ✅ Match Info Dialog - add opponent, date, time, location overlay on pitch
+- ✅ Scoreboard display on pitch (home/away scores)
+- ✅ Formation Save/Load system with short codes (OSTRA-XXXX)
+- ✅ Import formations from other devices via shortcode
+- ✅ Player Editor UI (add/edit/delete players)
+- ✅ **Global Player Database** - Player roster stored in MongoDB
+  - All users see the same player list
+  - Add new players with name, number, and optional image
+  - Edit existing player details
+  - Delete players from roster
+  - Auto-generated avatar images for players without photos
+
 ## Tech Stack
-- Frontend: React with @dnd-kit/core for drag-and-drop
-- Styling: Tailwind CSS + Custom CSS
-- Icons: Phosphor Icons
-- No backend required (client-side only)
+- **Frontend**: React with @dnd-kit/core for drag-and-drop
+- **Styling**: Tailwind CSS + Custom CSS + Shadcn/UI components
+- **Icons**: Phosphor Icons
+- **Backend**: FastAPI (Python)
+- **Database**: MongoDB (Motor async driver)
 
-## Prioritized Backlog
+## API Endpoints
+- `GET /api/players` - Get all players (auto-seeds 24 players if empty)
+- `POST /api/players` - Add new player
+- `PUT /api/players/{id}` - Update player
+- `DELETE /api/players/{id}` - Delete player
+- `POST /api/squads/share` - Save formation and get shortcode
+- `GET /api/squads/{code}` - Load formation by shortcode
 
-### P0 (Critical) - COMPLETE
-- ✅ Drag and drop functionality
+## Database Schema
+```
+players: {
+  id: int,
+  name: string,
+  number: int,
+  image: string (URL or base64)
+}
+
+shared_squads: {
+  code: string (e.g., "OSTRA-PRKZ"),
+  name: string,
+  playersOnPitch: array,
+  playersOnSubs: array,
+  matchInfo: object,
+  createdAt: datetime
+}
+```
+
+## Completed Features
+- ✅ Drag and drop functionality (iOS optimized)
 - ✅ Football pitch display
-- ✅ Player bench
+- ✅ Player bench (collapsible grid)
+- ✅ Match info overlay
+- ✅ Save/load formations via shortcodes
+- ✅ Global player management (MongoDB)
 
-### P1 (High)
-- [ ] Save/load formations to localStorage
-- [ ] Export formation as image
-
-### P2 (Medium)
+## Future Enhancements (P2-P3)
 - [ ] Multiple formation presets (4-4-2, 4-3-3, etc.)
 - [ ] Color-coded player positions
-- [ ] Undo/redo functionality
-
-### P3 (Low)
+- [ ] Export formation as image
+- [ ] PWA support for offline usage
 - [ ] Animation when placing players
-- [ ] Share formation via link
-- [ ] Multiple teams support
 
-## Next Tasks
-1. Add localStorage support to save formations
-2. Add export-to-image feature
-3. Consider PWA support for offline usage
+## Test Reports
+- `/app/test_reports/iteration_1.json`
+- `/app/test_reports/iteration_2.json` - Player CRUD API tests (100% pass)
