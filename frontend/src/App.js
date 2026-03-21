@@ -11,7 +11,7 @@ function App() {
   const [playersOnPitch, setPlayersOnPitch] = useState([]);
   const [targetPlayers, setTargetPlayers] = useState(11);
   const [activePlayer, setActivePlayer] = useState(null);
-  const [benchCollapsed, setBenchCollapsed] = useState(true);
+  const [benchCollapsed, setBenchCollapsed] = useState(false);
   const lastPointerPosition = useRef({ x: 0, y: 0 });
 
   // Players not on pitch (on bench)
