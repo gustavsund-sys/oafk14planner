@@ -15,6 +15,8 @@ const SubPlayer = ({ player }) => {
     opacity: isDragging ? 0.8 : 1,
   };
 
+  const firstName = player.name.split(' ')[0];
+
   return (
     <div
       ref={setNodeRef}
@@ -34,6 +36,7 @@ const SubPlayer = ({ player }) => {
         }}
       />
       <div className="sub-number font-display">{player.number}</div>
+      <div className="sub-name">{firstName}</div>
     </div>
   );
 };
