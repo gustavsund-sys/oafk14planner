@@ -3,20 +3,23 @@ import { DndContext, DragOverlay, pointerWithin, useSensor, useSensors, TouchSen
 import "@/App.css";
 import { Pitch } from './components/Pitch';
 import { Bench } from './components/Bench';
+import { SubsBench } from './components/SubsBench';
 import { Player } from './components/Player';
 import { SettingsDialog } from './components/SettingsDialog';
 import { players as allPlayers } from './data/players';
 
 function App() {
   const [playersOnPitch, setPlayersOnPitch] = useState([]);
+  const [playersOnSubs, setPlayersOnSubs] = useState([]);
   const [targetPlayers, setTargetPlayers] = useState(11);
   const [activePlayer, setActivePlayer] = useState(null);
   const [benchCollapsed, setBenchCollapsed] = useState(false);
   const lastPointerPosition = useRef({ x: 0, y: 0 });
 
-  // Players not on pitch (on bench)
+  // Players not on pitch or subs (available in main bench)
   const playersOnBench = allPlayers.filter(
-    (player) => !playersOnPitch.some((p) => p.player.id === player.id)
+    (player) => !playersOnPitch.some((p) => p.player.id === player.id) &&
+                !playersOnSubs.some((p) => p.id === player.id)
   );
 
   // Disable iOS bounce/scroll when dragging
@@ -86,6 +89,15 @@ function App() {
     const playerId = active.id;
     const playerData = active.data.current?.player;
     const wasOnPitch = active.data.current?.isOnPitch;
+    const wasOnSubs = active.data.current?.isOnSubs;
+
+    // Remove from previous location
+    const removeFromPitch = () => {
+      setPlayersOnPitch((prev) => prev.filter((p) => p.player.id !== playerId));
+    };
+    const removeFromSubs = () => {
+      setPlayersOnSubs((prev) => prev.filter((p) => p.id !== playerId));
+    };
 
     // Dropped on pitch
     if (over.id === 'pitch') {
@@ -106,6 +118,8 @@ function App() {
       xPercent = Math.max(8, Math.min(92, xPercent));
       yPercent = Math.max(5, Math.min(95, yPercent));
 
+      if (wasOnSubs) removeFromSubs();
+
       if (wasOnPitch) {
         // Update position of existing player on pitch
         setPlayersOnPitch((prev) =>
@@ -124,11 +138,18 @@ function App() {
       }
     }
 
-    // Dropped on bench - remove from pitch
-    if (over.id === 'bench' && wasOnPitch) {
-      setPlayersOnPitch((prev) =>
-        prev.filter((p) => p.player.id !== playerId)
-      );
+    // Dropped on subs bench
+    if (over.id === 'subs') {
+      if (wasOnPitch) removeFromPitch();
+      if (!wasOnSubs && playerData) {
+        setPlayersOnSubs((prev) => [...prev, playerData]);
+      }
+    }
+
+    // Dropped on main bench - remove from pitch/subs
+    if (over.id === 'bench') {
+      if (wasOnPitch) removeFromPitch();
+      if (wasOnSubs) removeFromSubs();
     }
   }, []);
 
@@ -173,8 +194,11 @@ function App() {
           </div>
         </header>
 
-        {/* Pitch */}
-        <Pitch playersOnPitch={playersOnPitch} />
+        {/* Pitch Area with Subs Bench */}
+        <div className="pitch-area">
+          <Pitch playersOnPitch={playersOnPitch} />
+          <SubsBench players={playersOnSubs} />
+        </div>
 
         {/* Bench */}
         <Bench 

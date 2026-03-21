@@ -28,14 +28,25 @@
   align-items: center;
   justify-content: center;
   padding: 12px;
+  padding-right: 4px;
   overflow: hidden;
   position: relative;
+}
+
+.pitch-area {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  overflow: hidden;
 }
 
 /* Football pitch */
 .football-pitch {
   width: 100%;
-  max-width: 380px;
+  max-width: 320px;
   aspect-ratio: 68 / 70;
   background: #14532D;
   border-radius: 8px;
@@ -44,6 +55,7 @@
   box-shadow: 
     0 0 0 4px rgba(255, 255, 255, 0.2),
     0 20px 60px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
 }
 
 /* Pitch grass stripes */
@@ -454,4 +466,80 @@
 .settings-overlay {
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(8px);
+}
+
+/* Subs Bench */
+.subs-bench {
+  width: 60px;
+  background: rgba(20, 20, 20, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 4px;
+  gap: 6px;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+
+.subs-bench-hover {
+  border-color: rgba(34, 197, 94, 0.6);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.subs-label {
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.subs-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.subs-empty {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  padding: 8px 2px;
+}
+
+.sub-player {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.sub-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  background: #171717;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.sub-number {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  background: #000;
+  border: 1.5px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: white;
 }
