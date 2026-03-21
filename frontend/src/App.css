@@ -219,8 +219,6 @@
 
 /* Bench */
 .bench-container {
-  min-height: 180px;
-  max-height: 220px;
   background: rgba(10, 10, 10, 0.9);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -228,45 +226,43 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  padding-bottom: 50px;
-  transition: min-height 0.3s ease, max-height 0.3s ease;
+  padding-bottom: 45px;
+  position: relative;
 }
 
-.bench-collapsed {
-  min-height: 50px;
-  max-height: 50px;
-  padding-bottom: 0;
-}
-
-.bench-toggle {
+.bench-toggle-top {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 26px;
+  background: rgba(30, 30, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 13px;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
-  font-weight: 500;
   cursor: pointer;
-  width: 100%;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: 10;
 }
 
-.bench-toggle:active {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.bench-collapsed .bench-toggle {
-  border-bottom: none;
+.bench-toggle-top:active {
+  background: rgba(50, 50, 50, 0.95);
 }
 
 .bench-grid-wrapper {
   flex: 1;
   overflow: hidden;
-  padding: 8px 10px 10px 10px;
-  display: flex;
+  padding: 12px 10px 10px 10px;
+  transition: max-height 0.3s ease;
+  max-height: 300px;
+}
+
+.bench-grid-collapsed {
+  max-height: 75px;
+  overflow: hidden;
 }
 
 .bench-grid {
