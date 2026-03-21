@@ -344,10 +344,10 @@
 }
 
 .player-name {
-  font-size: 9px;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
   text-align: center;
-  max-width: 55px;
+  max-width: 58px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
