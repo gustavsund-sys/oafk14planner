@@ -227,13 +227,46 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
   display: flex;
+  flex-direction: column;
   padding-bottom: 50px;
+  transition: min-height 0.3s ease, max-height 0.3s ease;
+}
+
+.bench-collapsed {
+  min-height: 50px;
+  max-height: 50px;
+  padding-bottom: 0;
+}
+
+.bench-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bench-toggle:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.bench-collapsed .bench-toggle {
+  border-bottom: none;
 }
 
 .bench-grid-wrapper {
   flex: 1;
   overflow: hidden;
-  padding: 10px 10px 10px 10px;
+  padding: 8px 10px 10px 10px;
+  display: flex;
 }
 
 .bench-grid {

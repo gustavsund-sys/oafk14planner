@@ -11,6 +11,7 @@ function App() {
   const [playersOnPitch, setPlayersOnPitch] = useState([]);
   const [targetPlayers, setTargetPlayers] = useState(11);
   const [activePlayer, setActivePlayer] = useState(null);
+  const [benchCollapsed, setBenchCollapsed] = useState(false);
   const lastPointerPosition = useRef({ x: 0, y: 0 });
 
   // Players not on pitch (on bench)
@@ -176,7 +177,11 @@ function App() {
         <Pitch playersOnPitch={playersOnPitch} />
 
         {/* Bench */}
-        <Bench players={playersOnBench} />
+        <Bench 
+          players={playersOnBench} 
+          isCollapsed={benchCollapsed}
+          onToggleCollapse={() => setBenchCollapsed(!benchCollapsed)}
+        />
 
         {/* Drag Overlay */}
         <DragOverlay dropAnimation={null}>
