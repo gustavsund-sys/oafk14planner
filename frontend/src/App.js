@@ -7,6 +7,7 @@ import { SubsBench } from './components/SubsBench';
 import { Player } from './components/Player';
 import { SettingsDialog } from './components/SettingsDialog';
 import { MatchInfoDialog } from './components/MatchInfoDialog';
+import { SaveLoadDialog } from './components/SaveLoadDialog';
 import { players as allPlayers } from './data/players';
 
 function App() {
@@ -177,6 +178,18 @@ function App() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Save/Load */}
+            <SaveLoadDialog
+              playersOnPitch={playersOnPitch}
+              playersOnSubs={playersOnSubs}
+              matchInfo={matchInfo}
+              onLoadSquad={(squad) => {
+                setPlayersOnPitch(squad.playersOnPitch || []);
+                setPlayersOnSubs(squad.playersOnSubs || []);
+                setMatchInfo(squad.matchInfo || { opponent: '', date: '', time: '', location: '' });
+              }}
+            />
+
             {/* Match Info */}
             <MatchInfoDialog
               matchInfo={matchInfo}
