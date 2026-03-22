@@ -304,7 +304,11 @@ function App() {
 
         {/* Pitch Area with Subs Bench */}
         <div className="pitch-area">
-          <Pitch playersOnPitch={playersOnPitch} matchInfo={matchInfo} />
+          <Pitch 
+            playersOnPitch={playersOnPitch} 
+            matchInfo={matchInfo} 
+            onPitchClick={() => setBenchCollapsed(!benchCollapsed)}
+          />
           <SubsBench players={playersOnSubs} />
         </div>
 

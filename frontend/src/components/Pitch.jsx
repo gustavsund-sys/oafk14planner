@@ -2,7 +2,7 @@ import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Player } from './Player';
 
-export const Pitch = ({ playersOnPitch, matchInfo }) => {
+export const Pitch = ({ playersOnPitch, matchInfo, onPitchClick }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: 'pitch',
   });
@@ -13,11 +13,19 @@ export const Pitch = ({ playersOnPitch, matchInfo }) => {
     return date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
   };
 
+  const handleClick = (e) => {
+    // Only trigger if clicking on the pitch itself, not on players
+    if (e.target.closest('[data-testid="football-pitch"]') === e.currentTarget) {
+      onPitchClick?.();
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
       className={`football-pitch ${isOver ? 'ring-2 ring-green-400' : ''}`}
       data-testid="football-pitch"
+      onClick={handleClick}
     >
       {/* Opponent info at top of pitch */}
       {matchInfo?.opponent && (
