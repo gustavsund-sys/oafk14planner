@@ -30,24 +30,51 @@ export const ExportButton = () => {
         logging: false,
       });
 
-      // Convert to blob and download
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          
-          // Generate filename with date
-          const date = new Date();
-          const dateStr = date.toISOString().split('T')[0];
-          link.download = `ostra-squad-${dateStr}.png`;
-          
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
+      // Generate filename with date
+      const date = new Date();
+      const dateStr = date.toISOString().split('T')[0];
+      const filename = `ostra-squad-${dateStr}.png`;
+
+      // Convert to blob
+      const blob = await new Promise((resolve) => {
+        canvas.toBlob((b) => resolve(b), 'image/png', 1.0);
+      });
+
+      if (!blob) {
+        console.error('Failed to create blob');
+        setIsExporting(false);
+        return;
+      }
+
+      // Try Web Share API first (works great on iOS/Android)
+      if (navigator.share && navigator.canShare) {
+        const file = new File([blob], filename, { type: 'image/png' });
+        const shareData = { files: [file] };
+        
+        if (navigator.canShare(shareData)) {
+          try {
+            await navigator.share(shareData);
+            setIsExporting(false);
+            return;
+          } catch (err) {
+            // User cancelled or share failed, fall back to download
+            if (err.name === 'AbortError') {
+              setIsExporting(false);
+              return;
+            }
+          }
         }
-      }, 'image/png', 1.0);
+      }
+
+      // Fallback: regular download
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
 
     } catch (error) {
       console.error('Export failed:', error);
@@ -62,9 +89,9 @@ export const ExportButton = () => {
       disabled={isExporting}
       className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors disabled:opacity-50"
       data-testid="export-image-button"
-      title="Exportera som bild"
+      title="Spara bild"
     >
-      <Camera size={22} weight="bold" className="text-white" />
+      <Camera size={22} weight="bold" className={isExporting ? "text-white/50" : "text-white"} />
     </button>
   );
 };
