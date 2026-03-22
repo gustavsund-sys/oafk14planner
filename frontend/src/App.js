@@ -9,6 +9,7 @@ import { SettingsDialog } from './components/SettingsDialog';
 import { MatchInfoDialog } from './components/MatchInfoDialog';
 import { SaveLoadDialog } from './components/SaveLoadDialog';
 import { PlayerEditorDialog } from './components/PlayerEditorDialog';
+import { InstallPrompt } from './components/InstallPrompt';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -217,6 +218,9 @@ function App() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Install App */}
+            <InstallPrompt />
+
             {/* Player Editor */}
             <PlayerEditorDialog
               players={allPlayers}

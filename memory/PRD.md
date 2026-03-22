@@ -55,6 +55,8 @@ Build an iPhone-optimized web app for football team "Östra Almby" (App name: Ö
   - Web App Manifest för PWA-installation
   - Safe-area-insets för iPhone notch/home indicator
   - `display: standalone` för fullskärmsupplevelse
+  - **Installera app-knapp** med instruktioner för användare
+  - Flytande installationsprompt som visas automatiskt
 
 ## Tech Stack
 - **Frontend**: React with @dnd-kit/core for drag-and-drop
