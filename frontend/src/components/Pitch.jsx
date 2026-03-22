@@ -49,6 +49,11 @@ export const Pitch = ({ playersOnPitch, matchInfo }) => {
 
       {/* Pitch markings */}
       <div className="pitch-markings">
+        {/* Club logo watermark - cut into grass */}
+        <div className="pitch-logo-watermark">
+          <img src="/logo.png" alt="" />
+        </div>
+
         {/* Center line */}
         <div className="center-line" />
         
