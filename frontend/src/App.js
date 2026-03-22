@@ -11,7 +11,6 @@ import { SaveLoadDialog } from './components/SaveLoadDialog';
 import { PlayerEditorDialog } from './components/PlayerEditorDialog';
 import { InstallPrompt } from './components/InstallPrompt';
 import { ExportButton } from './components/ExportButton';
-import { PitchStyleDialog, pitchStyles } from './components/PitchStyleDialog';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -25,10 +24,6 @@ function App() {
   const [benchCollapsed, setBenchCollapsed] = useState(false);
   const [matchInfo, setMatchInfo] = useState({ opponent: '', date: '', time: '', location: '', homeScore: null, awayScore: null });
   const [urlSquadLoaded, setUrlSquadLoaded] = useState(false);
-  const [pitchStyle, setPitchStyle] = useState(() => {
-    const savedStyleId = localStorage.getItem('pitchStyle');
-    return pitchStyles.find(s => s.id === savedStyleId) || pitchStyles[0];
-  });
   const lastPointerPosition = useRef({ x: 0, y: 0 });
 
   // Load squad from URL parameter
@@ -283,12 +278,6 @@ function App() {
               setMatchInfo={setMatchInfo}
             />
 
-            {/* Pitch Style */}
-            <PitchStyleDialog
-              currentStyle={pitchStyle}
-              onStyleChange={setPitchStyle}
-            />
-
             {/* Player counter */}
             <div
               className={`
@@ -313,7 +302,7 @@ function App() {
 
         {/* Pitch Area with Subs Bench */}
         <div className="pitch-area">
-          <Pitch playersOnPitch={playersOnPitch} matchInfo={matchInfo} pitchStyle={pitchStyle} />
+          <Pitch playersOnPitch={playersOnPitch} matchInfo={matchInfo} />
           <SubsBench players={playersOnSubs} />
         </div>
 

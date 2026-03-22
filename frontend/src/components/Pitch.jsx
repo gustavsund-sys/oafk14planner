@@ -2,7 +2,7 @@ import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Player } from './Player';
 
-export const Pitch = ({ playersOnPitch, matchInfo, pitchStyle }) => {
+export const Pitch = ({ playersOnPitch, matchInfo }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: 'pitch',
   });
@@ -13,27 +13,12 @@ export const Pitch = ({ playersOnPitch, matchInfo, pitchStyle }) => {
     return date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
   };
 
-  // Dynamic pitch styles
-  const dynamicStyles = pitchStyle ? {
-    background: pitchStyle.background,
-    boxShadow: pitchStyle.shadow,
-    '--line-color': pitchStyle.lineColor,
-  } : {};
-
   return (
     <div
       ref={setNodeRef}
       className={`football-pitch ${isOver ? 'ring-2 ring-green-400' : ''}`}
       data-testid="football-pitch"
-      style={dynamicStyles}
     >
-      {/* Grass stripes overlay */}
-      {pitchStyle?.stripes && pitchStyle.stripes !== 'none' && (
-        <div 
-          className="pitch-stripes-overlay"
-          style={{ background: pitchStyle.stripes }}
-        />
-      )}
       {/* Opponent info at top of pitch */}
       {matchInfo?.opponent && (
         <div className="opponent-overlay">
