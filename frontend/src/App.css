@@ -1,5 +1,10 @@
 /* Östra Squad - App Styles */
 
+/* Hide Emergent badge */
+#emergent-badge {
+  display: none !important;
+}
+
 /* PWA/Fullscreen Support */
 html, body {
   overscroll-behavior: none;
