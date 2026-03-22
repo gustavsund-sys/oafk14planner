@@ -76,11 +76,13 @@ function App() {
     fetchPlayers();
   }, [fetchPlayers]);
 
-  // Players not on pitch or subs (available in main bench)
-  const playersOnBench = allPlayers.filter(
-    (player) => !playersOnPitch.some((p) => p.player.id === player.id) &&
-                !playersOnSubs.some((p) => p.id === player.id)
-  );
+  // Players not on pitch or subs (available in main bench) - sorted by number
+  const playersOnBench = allPlayers
+    .filter(
+      (player) => !playersOnPitch.some((p) => p.player.id === player.id) &&
+                  !playersOnSubs.some((p) => p.id === player.id)
+    )
+    .sort((a, b) => a.number - b.number);
   
   // Update players on pitch/subs when allPlayers changes (e.g., player edited)
   useEffect(() => {
