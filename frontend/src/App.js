@@ -220,7 +220,7 @@ function App() {
 
     // Dropped on subs bench
     if (over.id === 'subs') {
-      // If player was on pitch and dropped near subs, keep on pitch at edge instead
+      // If player was on pitch and dropped very close to pitch edge, snap back
       if (wasOnPitch) {
         const pitchElement = document.querySelector('[data-testid="football-pitch"]');
         if (pitchElement) {
@@ -228,16 +228,15 @@ function App() {
           const pointerX = lastPointerPosition.current.x;
           const pointerY = lastPointerPosition.current.y;
           
-          // Check if drop position is close to pitch (within 60px of right edge)
-          if (pointerX <= pitchRect.right + 60) {
-            // Snap to right edge of pitch instead
+          // Only snap back if pointer is barely outside pitch (within 15px)
+          if (pointerX <= pitchRect.right + 15) {
             let yPercent = ((pointerY - pitchRect.top) / pitchRect.height) * 100;
             yPercent = Math.max(8, Math.min(88, yPercent));
             
             setPlayersOnPitch((prev) =>
               prev.map((p) =>
                 p.player.id === playerId
-                  ? { ...p, x: 82, y: yPercent }  // Snap to right edge (82%)
+                  ? { ...p, x: 82, y: yPercent }
                   : p
               )
             );
