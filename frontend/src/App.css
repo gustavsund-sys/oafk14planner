@@ -82,29 +82,21 @@ html, body {
   height: 100%;
   max-height: 100%;
   aspect-ratio: 68 / 70;
-  background: #14532D;
+  background: #2d5a27;
   border-radius: 8px;
   position: relative;
   overflow: hidden;
-  box-shadow: 
-    0 0 0 4px rgba(255, 255, 255, 0.2),
-    0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
   flex-shrink: 0;
+  --line-color: rgba(255, 255, 255, 0.9);
 }
 
-/* Pitch grass stripes */
-.football-pitch::before {
-  content: '';
+/* Pitch grass stripes - dynamic overlay */
+.pitch-stripes-overlay {
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(
-    180deg,
-    transparent 0px,
-    transparent 18px,
-    rgba(0, 0, 0, 0.05) 18px,
-    rgba(0, 0, 0, 0.05) 36px
-  );
   pointer-events: none;
+  z-index: 1;
 }
 
 /* Pitch markings container */
@@ -112,6 +104,7 @@ html, body {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 2;
 }
 
 /* Center line */
@@ -121,7 +114,7 @@ html, body {
   right: 8%;
   top: 15%;
   height: 2px;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--line-color, rgba(255, 255, 255, 0.7));
 }
 
 /* Center circle */
@@ -131,7 +124,7 @@ html, body {
   top: 15%;
   width: 30%;
   aspect-ratio: 1;
-  border: 2px solid rgba(255, 255, 255, 0.7);
+  border: 2px solid var(--line-color, rgba(255, 255, 255, 0.7));
   border-radius: 50%;
   transform: translate(-50%, -50%);
 }
@@ -143,7 +136,7 @@ html, body {
   top: 15%;
   width: 6px;
   height: 6px;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--line-color, rgba(255, 255, 255, 0.7));
   border-radius: 50%;
   transform: translate(-50%, -50%);
 }
@@ -155,7 +148,7 @@ html, body {
   transform: translateX(-50%);
   width: 60%;
   height: 24%;
-  border: 2px solid rgba(255, 255, 255, 0.7);
+  border: 2px solid var(--line-color, rgba(255, 255, 255, 0.7));
 }
 
 .penalty-area-top {
@@ -175,7 +168,7 @@ html, body {
   transform: translateX(-50%);
   width: 28%;
   height: 9%;
-  border: 2px solid rgba(255, 255, 255, 0.7);
+  border: 2px solid var(--line-color, rgba(255, 255, 255, 0.7));
 }
 
 .goal-area-top {
@@ -196,7 +189,7 @@ html, body {
   width: 20%;
   height: 4%;
   background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.8);
+  border: 2px solid var(--line-color, rgba(255, 255, 255, 0.8));
 }
 
 .goal-top {
@@ -216,7 +209,7 @@ html, body {
   transform: translateX(-50%);
   width: 24%;
   aspect-ratio: 2 / 1;
-  border: 2px solid rgba(255, 255, 255, 0.7);
+  border: 2px solid var(--line-color, rgba(255, 255, 255, 0.7));
   border-radius: 50%;
 }
 
@@ -234,7 +227,7 @@ html, body {
   position: absolute;
   width: 6%;
   aspect-ratio: 1;
-  border: 2px solid rgba(255, 255, 255, 0.7);
+  border: 2px solid var(--line-color, rgba(255, 255, 255, 0.7));
   border-radius: 50%;
 }
 
