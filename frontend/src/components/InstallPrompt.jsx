@@ -13,6 +13,7 @@ export const InstallPrompt = () => {
   const [isIOS, setIsIOS] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [neverShowAgain, setNeverShowAgain] = useState(false);
 
   useEffect(() => {
     // Check if already installed as PWA
@@ -34,9 +35,11 @@ export const InstallPrompt = () => {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
 
-    // Check if we should show the prompt (not shown in last 7 days)
+    // Check if we should show the prompt (not permanently dismissed)
+    const neverShow = localStorage.getItem('installPromptNeverShow');
     const lastPrompt = localStorage.getItem('installPromptShown');
-    if (!isStandalone && !lastPrompt) {
+    
+    if (!isStandalone && !neverShow && !lastPrompt) {
       setTimeout(() => setShowPrompt(true), 3000);
     }
 
@@ -58,7 +61,11 @@ export const InstallPrompt = () => {
 
   const dismissPrompt = () => {
     setShowPrompt(false);
-    localStorage.setItem('installPromptShown', Date.now().toString());
+    if (neverShowAgain) {
+      localStorage.setItem('installPromptNeverShow', 'true');
+    } else {
+      localStorage.setItem('installPromptShown', Date.now().toString());
+    }
   };
 
   // Don't show if already installed
@@ -110,6 +117,17 @@ export const InstallPrompt = () => {
                 </DialogContent>
               </Dialog>
             </div>
+            
+            {/* Never show again checkbox */}
+            <label className="flex items-center gap-2 mt-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={neverShowAgain}
+                onChange={(e) => setNeverShowAgain(e.target.checked)}
+                className="w-4 h-4 rounded border-white/30 bg-white/10 text-green-500 focus:ring-green-500 focus:ring-offset-0"
+              />
+              <span className="text-white/70 text-xs">Visa inte igen</span>
+            </label>
           </div>
         </div>
       )}
