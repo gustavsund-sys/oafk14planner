@@ -218,9 +218,6 @@ function App() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Install App */}
-            <InstallPrompt />
-
             {/* Player Editor */}
             <PlayerEditorDialog
               players={allPlayers}
@@ -249,12 +246,12 @@ function App() {
             {/* Player counter */}
             <div
               className={`
-                px-3 py-1.5 rounded-full font-display text-sm font-bold
+                px-2 py-1 rounded-full font-display text-xs font-bold whitespace-nowrap
                 ${isOverTarget ? 'bg-red-500/20 text-red-400' : 'bg-white/10 text-white/70'}
               `}
               data-testid="player-counter"
             >
-              {currentCount} / {targetPlayers}
+              {currentCount}/{targetPlayers}
             </div>
 
             {/* Settings */}
@@ -262,6 +259,9 @@ function App() {
               targetPlayers={targetPlayers}
               setTargetPlayers={setTargetPlayers}
             />
+
+            {/* Install App */}
+            <InstallPrompt />
           </div>
         </header>
 

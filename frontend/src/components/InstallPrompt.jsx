@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './ui/dialog';
-import { Export, ShareNetwork, Plus } from '@phosphor-icons/react';
+import { DownloadSimple, ShareNetwork, Plus } from '@phosphor-icons/react';
 
 export const InstallPrompt = () => {
   const [isInstalled, setIsInstalled] = useState(false);
@@ -118,10 +118,11 @@ export const InstallPrompt = () => {
       <Dialog>
         <DialogTrigger asChild>
           <button
-            className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center hover:bg-green-500/30 transition-colors"
+            className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-600 transition-colors"
             data-testid="install-app-button"
+            title="Installera appen"
           >
-            <Export size={20} weight="bold" className="text-green-400" />
+            <DownloadSimple size={18} weight="bold" className="text-white" />
           </button>
         </DialogTrigger>
         <DialogContent className="bg-[#171717] border-white/10 text-white max-w-[340px]">
