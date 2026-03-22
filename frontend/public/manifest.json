@@ -1,0 +1,18 @@
+{
+  "short_name": "Östra Squad",
+  "name": "Östra Squad - Laguppställning",
+  "description": "Planera och dela laguppställningar för Östra Almby FK",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#171717",
+  "background_color": "#171717"
+}

@@ -25,6 +25,7 @@ Build an iPhone-optimized web app for football team "Östra Almby" (App name: Ö
 - [x] Match info overlay on pitch
 - [x] Save/load formations via shortcodes (OSTRA-XXXX)
 - [x] Global player management (CRUD via MongoDB)
+- [x] PWA/Fullscreen mode support (Add to Home Screen)
 
 ## What's Been Implemented
 
@@ -49,6 +50,11 @@ Build an iPhone-optimized web app for football team "Östra Almby" (App name: Ö
   - Edit existing player details
   - Delete players from roster
   - Auto-generated avatar images for players without photos
+- ✅ **PWA/Fullscreen Support** - App kan köras i helskärmsläge
+  - iOS "Lägg till på hemskärmen" stöd
+  - Web App Manifest för PWA-installation
+  - Safe-area-insets för iPhone notch/home indicator
+  - `display: standalone` för fullskärmsupplevelse
 
 ## Tech Stack
 - **Frontend**: React with @dnd-kit/core for drag-and-drop
