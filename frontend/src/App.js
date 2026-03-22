@@ -191,9 +191,12 @@ function App() {
       let xPercent = ((pointerX - pitchRect.left) / pitchRect.width) * 100;
       let yPercent = ((pointerY - pitchRect.top) / pitchRect.height) * 100;
 
-      // Clamp to pitch bounds with padding
-      xPercent = Math.max(8, Math.min(92, xPercent));
-      yPercent = Math.max(5, Math.min(95, yPercent));
+      // Clamp to pitch bounds - keep players fully visible inside pitch
+      // Player avatar is ~54px wide, pitch is ~320px wide
+      // 54px / 320px = ~17%, so need 8.5% margin on each side
+      // Use 10% to be safe and keep name visible too
+      xPercent = Math.max(10, Math.min(82, xPercent));  // Tighter right margin
+      yPercent = Math.max(8, Math.min(88, yPercent));
 
       if (wasOnSubs) removeFromSubs();
 
@@ -217,7 +220,32 @@ function App() {
 
     // Dropped on subs bench
     if (over.id === 'subs') {
-      if (wasOnPitch) removeFromPitch();
+      // If player was on pitch and dropped near subs, keep on pitch at edge instead
+      if (wasOnPitch) {
+        const pitchElement = document.querySelector('[data-testid="football-pitch"]');
+        if (pitchElement) {
+          const pitchRect = pitchElement.getBoundingClientRect();
+          const pointerX = lastPointerPosition.current.x;
+          const pointerY = lastPointerPosition.current.y;
+          
+          // Check if drop position is close to pitch (within 60px of right edge)
+          if (pointerX <= pitchRect.right + 60) {
+            // Snap to right edge of pitch instead
+            let yPercent = ((pointerY - pitchRect.top) / pitchRect.height) * 100;
+            yPercent = Math.max(8, Math.min(88, yPercent));
+            
+            setPlayersOnPitch((prev) =>
+              prev.map((p) =>
+                p.player.id === playerId
+                  ? { ...p, x: 82, y: yPercent }  // Snap to right edge (82%)
+                  : p
+              )
+            );
+            return;
+          }
+        }
+        removeFromPitch();
+      }
       if (!wasOnSubs && playerData) {
         setPlayersOnSubs((prev) => [...prev, playerData]);
       }
