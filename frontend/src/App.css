@@ -86,7 +86,6 @@ html, body {
   border-radius: 8px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 0 0 4px #1a4a1a;
   flex-shrink: 0;
 }
 
