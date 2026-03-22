@@ -10,6 +10,7 @@ import { MatchInfoDialog } from './components/MatchInfoDialog';
 import { SaveLoadDialog } from './components/SaveLoadDialog';
 import { PlayerEditorDialog } from './components/PlayerEditorDialog';
 import { InstallPrompt } from './components/InstallPrompt';
+import { ExportButton } from './components/ExportButton';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -22,7 +23,38 @@ function App() {
   const [activePlayer, setActivePlayer] = useState(null);
   const [benchCollapsed, setBenchCollapsed] = useState(false);
   const [matchInfo, setMatchInfo] = useState({ opponent: '', date: '', time: '', location: '', homeScore: null, awayScore: null });
+  const [urlSquadLoaded, setUrlSquadLoaded] = useState(false);
   const lastPointerPosition = useRef({ x: 0, y: 0 });
+
+  // Load squad from URL parameter
+  const loadSquadFromUrl = useCallback(async (code) => {
+    try {
+      const response = await fetch(`${API_URL}/api/squads/${encodeURIComponent(code)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPlayersOnPitch(data.playersOnPitch || []);
+        setPlayersOnSubs(data.playersOnSubs || []);
+        setMatchInfo(data.matchInfo || { opponent: '', date: '', time: '', location: '', homeScore: null, awayScore: null });
+        // Clear URL parameter after loading
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } catch (error) {
+      console.error('Error loading squad from URL:', error);
+    }
+  }, []);
+
+  // Check URL for squad code on mount
+  useEffect(() => {
+    if (urlSquadLoaded) return;
+    
+    const params = new URLSearchParams(window.location.search);
+    const squadCode = params.get('squad') || params.get('code');
+    
+    if (squadCode) {
+      setUrlSquadLoaded(true);
+      loadSquadFromUrl(squadCode);
+    }
+  }, [loadSquadFromUrl, urlSquadLoaded]);
 
   // Fetch players from API
   const fetchPlayers = useCallback(async () => {
@@ -236,6 +268,9 @@ function App() {
                 setMatchInfo(squad.matchInfo || { opponent: '', date: '', time: '', location: '' });
               }}
             />
+
+            {/* Export as Image */}
+            <ExportButton />
 
             {/* Match Info */}
             <MatchInfoDialog

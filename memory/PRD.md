@@ -57,6 +57,8 @@ Build an iPhone-optimized web app for football team "Östra Almby" (App name: Ö
   - `display: standalone` för fullskärmsupplevelse
   - **Installera app-knapp** med instruktioner för användare
   - Flytande installationsprompt som visas automatiskt
+- ✅ **Exportera som bild** - Spara uppställningen som PNG-bild
+- ✅ **Dela via länk** - Kopiera fullständig URL (t.ex. `app.com?squad=OSTRA-XXXX`)
 
 ## Tech Stack
 - **Frontend**: React with @dnd-kit/core for drag-and-drop

@@ -84,10 +84,15 @@ export const SaveLoadDialog = ({
       if (response.ok) {
         const data = await response.json();
         setShareCode(data.code);
-        navigator.clipboard.writeText(data.code).then(() => {
-          setShareMessage(`Kod kopierad: ${data.code}`);
+        
+        // Create full shareable URL
+        const baseUrl = window.location.origin;
+        const shareUrl = `${baseUrl}?squad=${data.code}`;
+        
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          setShareMessage(`Länk kopierad!`);
         }).catch(() => {
-          setShareMessage(`Dela koden: ${data.code}`);
+          setShareMessage(`Dela länk: ${shareUrl}`);
         });
         setTimeout(() => setShareMessage(''), 5000);
       } else {
@@ -138,8 +143,10 @@ export const SaveLoadDialog = ({
 
   const copyCode = () => {
     if (shareCode) {
-      navigator.clipboard.writeText(shareCode);
-      setShareMessage('Kod kopierad!');
+      const baseUrl = window.location.origin;
+      const shareUrl = `${baseUrl}?squad=${shareCode}`;
+      navigator.clipboard.writeText(shareUrl);
+      setShareMessage('Länk kopierad!');
       setTimeout(() => setShareMessage(''), 2000);
     }
   };
