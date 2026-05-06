@@ -18,6 +18,13 @@ export const Player = ({ player, isOnPitch = false, style = {} }) => {
 
   // Get first name only for display on pitch
   const firstName = player.name.split(' ')[0];
+  
+  // Handle image path - ensure it works on both local and GitHub Pages
+  const imageSrc = player.image?.startsWith('http') 
+    ? player.image 
+    : player.image?.startsWith('/') 
+      ? player.image.slice(1) 
+      : player.image;
 
   return (
     <div
@@ -30,7 +37,7 @@ export const Player = ({ player, isOnPitch = false, style = {} }) => {
     >
       <div className={`relative ${isOnPitch ? 'player-on-pitch-avatar' : ''}`}>
         <img
-          src={player.image}
+          src={imageSrc}
           alt={player.name}
           className={isOnPitch ? 'player-avatar-large' : 'player-avatar'}
           draggable={false}
@@ -38,7 +45,7 @@ export const Player = ({ player, isOnPitch = false, style = {} }) => {
             e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=171717&color=fff&size=96`;
           }}
         />
-        <div className={isOnPitch ? 'player-number-large font-display' : 'player-number font-display'}>{player.number}</div>
+        <div className={isOnPitch ? 'player-number-large font-display' : 'player-number-large font-display'}>{player.number}</div>
       </div>
       {isOnPitch && (
         <div className="player-pitch-name">{firstName}</div>
