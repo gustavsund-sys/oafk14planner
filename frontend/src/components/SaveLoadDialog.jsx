@@ -9,6 +9,17 @@ import {
 import { FloppyDisk, Folder, Trash, Share, Download, Copy } from '@phosphor-icons/react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+const isStaticMode = !API_URL || API_URL === '' || API_URL === 'undefined';
+
+// Generate a simple short code for static mode
+const generateShortCode = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = 'OSTRA-';
+  for (let i = 0; i < 4; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+};
 
 export const SaveLoadDialog = ({ 
   currentSquad, 
@@ -70,34 +81,57 @@ export const SaveLoadDialog = ({
   const handleShare = async (squad) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/squads/share`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      if (isStaticMode) {
+        // Static mode - save to localStorage with code
+        const code = generateShortCode();
+        const sharedSquads = JSON.parse(localStorage.getItem('ostra-squads') || '{}');
+        sharedSquads[code] = {
           name: squad.name,
           playersOnPitch: squad.playersOnPitch,
           playersOnSubs: squad.playersOnSubs,
           matchInfo: squad.matchInfo
-        })
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setShareCode(data.code);
+        };
+        localStorage.setItem('ostra-squads', JSON.stringify(sharedSquads));
         
-        // Create full shareable URL
-        const baseUrl = window.location.origin;
-        const shareUrl = `${baseUrl}?squad=${data.code}`;
+        setShareCode(code);
+        const baseUrl = window.location.origin + window.location.pathname;
+        const shareUrl = `${baseUrl}?squad=${code}`;
         
         navigator.clipboard.writeText(shareUrl).then(() => {
-          setShareMessage(`Länk kopierad!`);
+          setShareMessage(`Länk kopierad! (Fungerar endast på denna enhet)`);
         }).catch(() => {
           setShareMessage(`Dela länk: ${shareUrl}`);
         });
         setTimeout(() => setShareMessage(''), 5000);
       } else {
-        setShareMessage('Kunde inte dela. Försök igen.');
-        setTimeout(() => setShareMessage(''), 3000);
+        const response = await fetch(`${API_URL}/api/squads/share`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: squad.name,
+            playersOnPitch: squad.playersOnPitch,
+            playersOnSubs: squad.playersOnSubs,
+            matchInfo: squad.matchInfo
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setShareCode(data.code);
+          
+          const baseUrl = window.location.origin;
+          const shareUrl = `${baseUrl}?squad=${data.code}`;
+          
+          navigator.clipboard.writeText(shareUrl).then(() => {
+            setShareMessage(`Länk kopierad!`);
+          }).catch(() => {
+            setShareMessage(`Dela länk: ${shareUrl}`);
+          });
+          setTimeout(() => setShareMessage(''), 5000);
+        } else {
+          setShareMessage('Kunde inte dela. Försök igen.');
+          setTimeout(() => setShareMessage(''), 3000);
+        }
       }
     } catch (e) {
       console.error('Share error:', e);
@@ -112,26 +146,42 @@ export const SaveLoadDialog = ({
     
     setIsLoading(true);
     try {
-      // Clean up the code
       let code = importCode.trim().toUpperCase();
       if (!code.startsWith('OSTRA-')) {
         code = `OSTRA-${code}`;
       }
       
-      const response = await fetch(`${API_URL}/api/squads/${encodeURIComponent(code)}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        onLoadSquad(data);
-        setImportCode('');
-        setShareMessage('Squad importerad!');
-        setTimeout(() => {
-          setShareMessage('');
-          setOpen(false);
-        }, 1500);
+      if (isStaticMode) {
+        // Static mode - load from localStorage
+        const sharedSquads = JSON.parse(localStorage.getItem('ostra-squads') || '{}');
+        if (sharedSquads[code]) {
+          onLoadSquad(sharedSquads[code]);
+          setImportCode('');
+          setShareMessage('Squad importerad!');
+          setTimeout(() => {
+            setShareMessage('');
+            setOpen(false);
+          }, 1500);
+        } else {
+          setShareMessage('Hittade ingen squad med den koden.');
+          setTimeout(() => setShareMessage(''), 3000);
+        }
       } else {
-        setShareMessage('Hittade ingen squad med den koden.');
-        setTimeout(() => setShareMessage(''), 3000);
+        const response = await fetch(`${API_URL}/api/squads/${encodeURIComponent(code)}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          onLoadSquad(data);
+          setImportCode('');
+          setShareMessage('Squad importerad!');
+          setTimeout(() => {
+            setShareMessage('');
+            setOpen(false);
+          }, 1500);
+        } else {
+          setShareMessage('Hittade ingen squad med den koden.');
+          setTimeout(() => setShareMessage(''), 3000);
+        }
       }
     } catch (e) {
       console.error('Import error:', e);

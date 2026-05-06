@@ -11,8 +11,12 @@ import { SaveLoadDialog } from './components/SaveLoadDialog';
 import { PlayerEditorDialog } from './components/PlayerEditorDialog';
 import { InstallPrompt } from './components/InstallPrompt';
 import { ExportButton } from './components/ExportButton';
+import { players as defaultPlayers } from './data/players';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Check if we're in static mode (no backend)
+const isStaticMode = !API_URL || API_URL === '' || API_URL === 'undefined';
 
 function App() {
   const [allPlayers, setAllPlayers] = useState([]);
@@ -26,8 +30,21 @@ function App() {
   const [urlSquadLoaded, setUrlSquadLoaded] = useState(false);
   const lastPointerPosition = useRef({ x: 0, y: 0 });
 
-  // Load squad from URL parameter
+  // Load squad from URL parameter (only works with backend)
   const loadSquadFromUrl = useCallback(async (code) => {
+    if (isStaticMode) {
+      // Try to load from localStorage in static mode
+      const savedSquads = JSON.parse(localStorage.getItem('ostra-squads') || '{}');
+      if (savedSquads[code]) {
+        const data = savedSquads[code];
+        setPlayersOnPitch(data.playersOnPitch || []);
+        setPlayersOnSubs(data.playersOnSubs || []);
+        setMatchInfo(data.matchInfo || { opponent: '', date: '', time: '', location: '', homeScore: null, awayScore: null });
+      }
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
+    
     try {
       const response = await fetch(`${API_URL}/api/squads/${encodeURIComponent(code)}`);
       if (response.ok) {
@@ -35,7 +52,6 @@ function App() {
         setPlayersOnPitch(data.playersOnPitch || []);
         setPlayersOnSubs(data.playersOnSubs || []);
         setMatchInfo(data.matchInfo || { opponent: '', date: '', time: '', location: '', homeScore: null, awayScore: null });
-        // Clear URL parameter after loading
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     } catch (error) {
@@ -56,16 +72,33 @@ function App() {
     }
   }, [loadSquadFromUrl, urlSquadLoaded]);
 
-  // Fetch players from API
+  // Fetch players from API or use local data
   const fetchPlayers = useCallback(async () => {
+    if (isStaticMode) {
+      // Use local player data and check localStorage for modifications
+      const savedPlayers = localStorage.getItem('ostra-players');
+      if (savedPlayers) {
+        setAllPlayers(JSON.parse(savedPlayers));
+      } else {
+        setAllPlayers(defaultPlayers);
+        localStorage.setItem('ostra-players', JSON.stringify(defaultPlayers));
+      }
+      setIsLoadingPlayers(false);
+      return;
+    }
+    
     try {
       const response = await fetch(`${API_URL}/api/players`);
       if (response.ok) {
         const data = await response.json();
         setAllPlayers(data);
+      } else {
+        // Fallback to local data
+        setAllPlayers(defaultPlayers);
       }
     } catch (error) {
-      console.error('Error fetching players:', error);
+      console.error('Error fetching players, using local data:', error);
+      setAllPlayers(defaultPlayers);
     } finally {
       setIsLoadingPlayers(false);
     }

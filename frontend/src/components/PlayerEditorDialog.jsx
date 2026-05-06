@@ -9,6 +9,7 @@ import {
 import { Users, Pencil, Trash, Plus, Camera } from '@phosphor-icons/react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+const isStaticMode = !API_URL || API_URL === '' || API_URL === 'undefined';
 
 export const PlayerEditorDialog = ({ players, setPlayers, refreshPlayers }) => {
   const [open, setOpen] = useState(false);
@@ -42,35 +43,62 @@ export const PlayerEditorDialog = ({ players, setPlayers, refreshPlayers }) => {
     setIsLoading(true);
 
     try {
-      if (editingPlayer) {
-        // Update existing player
-        const response = await fetch(`${API_URL}/api/players/${editingPlayer.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+      if (isStaticMode) {
+        // Static mode - use localStorage
+        const savedPlayers = JSON.parse(localStorage.getItem('ostra-players') || '[]');
+        
+        if (editingPlayer) {
+          // Update existing player
+          const updatedPlayers = savedPlayers.map(p => 
+            p.id === editingPlayer.id 
+              ? { ...p, name: name.trim(), number: parseInt(number), image: imageUrl || p.image }
+              : p
+          );
+          localStorage.setItem('ostra-players', JSON.stringify(updatedPlayers));
+          setPlayers(updatedPlayers);
+        } else {
+          // Add new player
+          const newId = Math.max(...savedPlayers.map(p => p.id), 0) + 1;
+          const newPlayer = {
+            id: newId,
             name: name.trim(),
             number: parseInt(number),
-            image: imageUrl || undefined
-          })
-        });
-        
-        if (response.ok) {
-          refreshPlayers();
+            image: imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(name.trim())}&background=171717&color=fff&size=96`
+          };
+          const updatedPlayers = [...savedPlayers, newPlayer];
+          localStorage.setItem('ostra-players', JSON.stringify(updatedPlayers));
+          setPlayers(updatedPlayers);
         }
       } else {
-        // Add new player
-        const response = await fetch(`${API_URL}/api/players`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: name.trim(),
-            number: parseInt(number),
-            image: imageUrl || null
-          })
-        });
-        
-        if (response.ok) {
-          refreshPlayers();
+        // API mode
+        if (editingPlayer) {
+          const response = await fetch(`${API_URL}/api/players/${editingPlayer.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: name.trim(),
+              number: parseInt(number),
+              image: imageUrl || undefined
+            })
+          });
+          
+          if (response.ok) {
+            refreshPlayers();
+          }
+        } else {
+          const response = await fetch(`${API_URL}/api/players`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: name.trim(),
+              number: parseInt(number),
+              image: imageUrl || null
+            })
+          });
+          
+          if (response.ok) {
+            refreshPlayers();
+          }
         }
       }
     } catch (error) {
@@ -89,12 +117,20 @@ export const PlayerEditorDialog = ({ players, setPlayers, refreshPlayers }) => {
     if (window.confirm('Vill du ta bort denna spelare?')) {
       setIsLoading(true);
       try {
-        const response = await fetch(`${API_URL}/api/players/${playerId}`, {
-          method: 'DELETE'
-        });
-        
-        if (response.ok) {
-          refreshPlayers();
+        if (isStaticMode) {
+          // Static mode - use localStorage
+          const savedPlayers = JSON.parse(localStorage.getItem('ostra-players') || '[]');
+          const updatedPlayers = savedPlayers.filter(p => p.id !== playerId);
+          localStorage.setItem('ostra-players', JSON.stringify(updatedPlayers));
+          setPlayers(updatedPlayers);
+        } else {
+          const response = await fetch(`${API_URL}/api/players/${playerId}`, {
+            method: 'DELETE'
+          });
+          
+          if (response.ok) {
+            refreshPlayers();
+          }
         }
       } catch (error) {
         console.error('Error deleting player:', error);
