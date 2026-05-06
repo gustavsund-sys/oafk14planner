@@ -63,6 +63,13 @@ export const PlayerCard = ({ player }) => {
 
   // Get first name only for display
   const firstName = player.name.split(' ')[0];
+  
+  // Handle image path - ensure it works on both local and GitHub Pages
+  const imageSrc = player.image?.startsWith('http') 
+    ? player.image 
+    : player.image?.startsWith('/') 
+      ? player.image.slice(1) 
+      : player.image;
 
   return (
     <div
@@ -75,7 +82,7 @@ export const PlayerCard = ({ player }) => {
     >
       <div className="relative">
         <img
-          src={player.image}
+          src={imageSrc}
           alt={player.name}
           className="player-avatar"
           draggable={false}
