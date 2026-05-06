@@ -261,13 +261,19 @@ export const PlayerEditorDialog = ({ players, setPlayers, refreshPlayers }) => {
             </button>
 
             <div className="flex-1 overflow-y-auto space-y-2 max-h-[400px]">
-              {players.map((player) => (
+              {players.map((player) => {
+                const imageSrc = player.image?.startsWith('http') 
+                  ? player.image 
+                  : player.image?.startsWith('/') 
+                    ? player.image.slice(1) 
+                    : player.image;
+                return (
                 <div
                   key={player.id}
                   className="flex items-center gap-3 p-2 bg-white/5 rounded-lg"
                 >
                   <img
-                    src={player.image}
+                    src={imageSrc}
                     alt={player.name}
                     className="w-10 h-10 rounded-full object-cover border border-white/20"
                     onError={(e) => {
@@ -293,7 +299,7 @@ export const PlayerEditorDialog = ({ players, setPlayers, refreshPlayers }) => {
                     <Trash size={18} />
                   </button>
                 </div>
-              ))}
+              );})}
             </div>
             
             <div className="text-xs text-white/40 text-center pt-2">

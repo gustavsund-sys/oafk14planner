@@ -16,6 +16,13 @@ const SubPlayer = ({ player }) => {
   };
 
   const firstName = player.name.split(' ')[0];
+  
+  // Handle image path - ensure it works on both local and GitHub Pages
+  const imageSrc = player.image?.startsWith('http') 
+    ? player.image 
+    : player.image?.startsWith('/') 
+      ? player.image.slice(1) 
+      : player.image;
 
   return (
     <div
@@ -27,7 +34,7 @@ const SubPlayer = ({ player }) => {
       data-testid={`sub-player-${player.number}`}
     >
       <img
-        src={player.image}
+        src={imageSrc}
         alt={player.name}
         className="sub-avatar"
         draggable={false}
